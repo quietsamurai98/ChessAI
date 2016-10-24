@@ -19,6 +19,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 public class Chess {
         
     /**
@@ -153,6 +154,35 @@ public class Chess {
         moving = false;
         lastI=0;
         lastJ=0;
+        boolean kingsAreAlive=true;
+//        int kingCount=0;
+//        while(kingsAreAlive){
+//        	kingCount=0;
+//			for(int[] foo:board){
+//				for(int bar:foo){
+//					if(bar%10==5){
+//						kingCount++;
+//					}
+//				}
+//			}
+//			kingsAreAlive=kingCount==2;
+//			if(kingsAreAlive){
+//				aiMoveCapture(1);
+//			}
+//			kingCount=0;
+//			for(int[] foo:board){
+//				for(int bar:foo){
+//					if(bar%10==5){
+//						kingCount++;
+//					}
+//				}
+//			}
+//			kingsAreAlive=kingCount==2;
+//			if(kingsAreAlive){
+//        		aiMoveCapture(2);
+//			}
+//			
+//        }
     }
     
     public void clickedOn(int i, int j){
@@ -172,11 +202,131 @@ public class Chess {
     		}
     		highlightMoves(new int[8][8]);
     		updatePieceDisplay();
+    		
+    		aiMoveCapture(2);
+    	}
+    }
+    
+    //To move white piece, side=1, to move black piece, side=2
+    public void aiMoveRandom(int side){
+    	boolean hasLegalMoves = false;
+    	int initialr=0;
+	    int initialc=0;
+    	while(!hasLegalMoves){
+	    	ArrayList<Integer> rList = new ArrayList<Integer>();
+	    	ArrayList<Integer> cList = new ArrayList<Integer>();
+	    	for(int i=0; i<8; i++){
+	        	for(int j=0; j<8; j++){
+	        		if(board[i][j]/10==side){
+	        			rList.add(i);
+	        			cList.add(j);
+	        		}
+	        	}
+	    	}
+	    	int index = (int)(Math.random()*rList.size());
+	    	initialr=Integer.valueOf(rList.get(index));
+	    	initialc=Integer.valueOf(cList.get(index));
+	    	int[][] arr = legalMoves(initialr,initialc);
+	    	for(int[] foo: arr){
+	    		for(int bar:foo){
+	    			if(!hasLegalMoves&&bar==1){
+	    				hasLegalMoves=true;
+	    			}
+	    		}
+	    	}
+    	}
+    	int[][] arr = legalMoves(initialr,initialc);
+    	ArrayList<Integer> r = new ArrayList<Integer>();
+    	ArrayList<Integer> c = new ArrayList<Integer>();
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		if(arr[i][j]!=0){
+        			r.add(i);
+        			c.add(j);
+        		}
+        	}
+    	}
+    	int index = (int)(Math.random()*r.size());
+	    int finalr=Integer.valueOf(r.get(index));
+	    int finalc=Integer.valueOf(c.get(index));
+    	if(legalMoves(initialr,initialc)[finalr][finalc]!=0){
+    		board[finalr][finalc] = board[initialr][initialc];
+    		board[initialr][initialc] = 0;
+    		updatePieceDisplay();
     	}
     	
-    	
-    	
-		
+    }
+    public void aiMoveCapture(int side){
+    	int maxInitialR=0;
+    	int maxInitialC=0;
+    	int maxFinalR=0;
+    	int maxFinalC=0;
+    	int maxCapture=-1;
+    	for(int loopCounter = 0; loopCounter<100000; loopCounter++){
+	    	boolean hasLegalMoves = false;
+	    	int initialr=0;
+		    int initialc=0;
+	    	while(!hasLegalMoves){
+		    	ArrayList<Integer> rList = new ArrayList<Integer>();
+		    	ArrayList<Integer> cList = new ArrayList<Integer>();
+		    	for(int i=0; i<8; i++){
+		        	for(int j=0; j<8; j++){
+		        		if(board[i][j]/10==side){
+		        			rList.add(i);
+		        			cList.add(j);
+		        		}
+		        	}
+		    	}
+		    	int index = (int)(Math.random()*rList.size());
+		    	initialr=Integer.valueOf(rList.get(index));
+		    	initialc=Integer.valueOf(cList.get(index));
+		    	int[][] arr = legalMoves(initialr,initialc);
+		    	for(int[] foo: arr){
+		    		for(int bar:foo){
+		    			if(!hasLegalMoves&&bar==1){
+		    				hasLegalMoves=true;
+		    			}
+		    		}
+		    	}
+	    	}
+	    	int[][] arr = legalMoves(initialr,initialc);
+	    	ArrayList<Integer> r = new ArrayList<Integer>();
+	    	ArrayList<Integer> c = new ArrayList<Integer>();
+	    	for(int i=0; i<8; i++){
+	        	for(int j=0; j<8; j++){
+	        		if(arr[i][j]!=0&&board[i][j]!=0){
+	        			r.add(i);
+	        			c.add(j);
+	        		}
+	        	}
+	    	}
+	    	if(r.size()==0){
+	    		for(int i=0; i<8; i++){
+		        	for(int j=0; j<8; j++){
+		        		if(arr[i][j]!=0){
+		        			r.add(i);
+		        			c.add(j);
+		        		}
+		        	}
+		    	}
+	    	}
+	    	int index = (int)(Math.random()*r.size());
+		    int finalr=Integer.valueOf(r.get(index));
+		    int finalc=Integer.valueOf(c.get(index));
+	    	if(legalMoves(initialr,initialc)[finalr][finalc]!=0){
+	    		if(board[finalr][finalc]%10>maxCapture){
+	    			maxFinalR=finalr;
+	    			maxFinalC=finalc;
+	    			maxInitialR=initialr;
+	    			maxInitialC=initialc;
+	    			maxCapture=board[finalr][finalc]%10;
+	    		}
+	    	}	
+    	}
+    	board[maxFinalR][maxFinalC] = board[maxInitialR][maxInitialC];
+	    board[maxInitialR][maxInitialC] = 0;
+	    System.out.println("MOVE SCORE:" + maxCapture);
+	    updatePieceDisplay();
     }
     public int[][] legalMoves(int r, int c){
     	int[][] out = new int[8][8];
@@ -435,6 +585,16 @@ public class Chess {
     	
     	return out;
     }
+    public int[][] multiplyArrayElements(int[][] foo, int[][] bar){
+    	int[][] out = new int[8][8];
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		out[i][j]=foo[i][j]*bar[i][j];
+        	}
+    	}
+    	return out;
+    }
+    
     public static void main(String[] args) {
         // TODO code application logic here
         Chess chess = new Chess();
