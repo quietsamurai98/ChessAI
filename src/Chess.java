@@ -34,6 +34,7 @@ public class Chess {
     boolean moving;
     int lastI;
     int lastJ;
+    int loop=10000;
         
     public Chess() {
     }
@@ -155,34 +156,34 @@ public class Chess {
         lastI=0;
         lastJ=0;
         boolean kingsAreAlive=true;
-//        int kingCount=0;
-//        while(kingsAreAlive){
-//        	kingCount=0;
-//			for(int[] foo:board){
-//				for(int bar:foo){
-//					if(bar%10==5){
-//						kingCount++;
-//					}
-//				}
-//			}
-//			kingsAreAlive=kingCount==2;
-//			if(kingsAreAlive){
-//				aiMoveCapture(1);
-//			}
-//			kingCount=0;
-//			for(int[] foo:board){
-//				for(int bar:foo){
-//					if(bar%10==5){
-//						kingCount++;
-//					}
-//				}
-//			}
-//			kingsAreAlive=kingCount==2;
-//			if(kingsAreAlive){
-//        		aiMoveCapture(2);
-//			}
-//			
-//        }
+        int kingCount=0;
+        while(true&&kingsAreAlive){
+        	kingCount=0;
+			for(int[] foo:board){
+				for(int bar:foo){
+					if(bar%10==5){
+						kingCount++;
+					}
+				}
+			}
+			kingsAreAlive=kingCount==2;
+			if(kingsAreAlive){
+				aiMoveCapture(1);
+			}
+			kingCount=0;
+			for(int[] foo:board){
+				for(int bar:foo){
+					if(bar%10==5){
+						kingCount++;
+					}
+				}
+			}
+			kingsAreAlive=kingCount==2;
+			if(kingsAreAlive){
+        		aiMoveCapture(2);
+			}
+			
+        }
     }
     
     public void clickedOn(int i, int j){
@@ -192,11 +193,11 @@ public class Chess {
     		lastJ=j;
     		moving = true;
     		if(board[i][j]!=0){
-    			highlightMoves(legalMoves(i,j));
+    			highlightMoves(legalMoves(i,j,board));
     		}
     	} else {
     		moving = false;
-    		if(legalMoves(lastI,lastJ)[i][j]!=0){
+    		if(legalMoves(lastI,lastJ,board)[i][j]!=0){
     			board[i][j] = board[lastI][lastJ];
     			board[lastI][lastJ]=0;
     		}
@@ -226,7 +227,7 @@ public class Chess {
 	    	int index = (int)(Math.random()*rList.size());
 	    	initialr=Integer.valueOf(rList.get(index));
 	    	initialc=Integer.valueOf(cList.get(index));
-	    	int[][] arr = legalMoves(initialr,initialc);
+	    	int[][] arr = legalMoves(initialr,initialc,board);
 	    	for(int[] foo: arr){
 	    		for(int bar:foo){
 	    			if(!hasLegalMoves&&bar==1){
@@ -235,7 +236,7 @@ public class Chess {
 	    		}
 	    	}
     	}
-    	int[][] arr = legalMoves(initialr,initialc);
+    	int[][] arr = legalMoves(initialr,initialc,board);
     	ArrayList<Integer> r = new ArrayList<Integer>();
     	ArrayList<Integer> c = new ArrayList<Integer>();
     	for(int i=0; i<8; i++){
@@ -249,7 +250,7 @@ public class Chess {
     	int index = (int)(Math.random()*r.size());
 	    int finalr=Integer.valueOf(r.get(index));
 	    int finalc=Integer.valueOf(c.get(index));
-    	if(legalMoves(initialr,initialc)[finalr][finalc]!=0){
+    	if(legalMoves(initialr,initialc,board)[finalr][finalc]!=0){
     		board[finalr][finalc] = board[initialr][initialc];
     		board[initialr][initialc] = 0;
     		updatePieceDisplay();
@@ -262,7 +263,7 @@ public class Chess {
     	int maxFinalR=0;
     	int maxFinalC=0;
     	int maxCapture=-1;
-    	for(int loopCounter = 0; loopCounter<100000; loopCounter++){
+    	for(int loopCounter = 0; loopCounter<loop; loopCounter++){
 	    	boolean hasLegalMoves = false;
 	    	int initialr=0;
 		    int initialc=0;
@@ -280,7 +281,7 @@ public class Chess {
 		    	int index = (int)(Math.random()*rList.size());
 		    	initialr=Integer.valueOf(rList.get(index));
 		    	initialc=Integer.valueOf(cList.get(index));
-		    	int[][] arr = legalMoves(initialr,initialc);
+		    	int[][] arr = legalMoves(initialr,initialc,board);
 		    	for(int[] foo: arr){
 		    		for(int bar:foo){
 		    			if(!hasLegalMoves&&bar==1){
@@ -289,7 +290,7 @@ public class Chess {
 		    		}
 		    	}
 	    	}
-	    	int[][] arr = legalMoves(initialr,initialc);
+	    	int[][] arr = legalMoves(initialr,initialc,board);
 	    	ArrayList<Integer> r = new ArrayList<Integer>();
 	    	ArrayList<Integer> c = new ArrayList<Integer>();
 	    	for(int i=0; i<8; i++){
@@ -313,39 +314,118 @@ public class Chess {
 	    	int index = (int)(Math.random()*r.size());
 		    int finalr=Integer.valueOf(r.get(index));
 		    int finalc=Integer.valueOf(c.get(index));
-	    	if(legalMoves(initialr,initialc)[finalr][finalc]!=0){
-	    		if(board[finalr][finalc]%10>maxCapture){
+	    	if(legalMoves(initialr,initialc,board)[finalr][finalc]!=0){
+	    		if(board[finalr][finalc]%10-aiMoveCapture(side, board)>maxCapture){
 	    			maxFinalR=finalr;
 	    			maxFinalC=finalc;
 	    			maxInitialR=initialr;
 	    			maxInitialC=initialc;
-	    			maxCapture=board[finalr][finalc]%10;
+	    			maxCapture=board[finalr][finalc]%10-aiMoveCapture(side%2+1, board);
 	    		}
 	    	}	
     	}
     	board[maxFinalR][maxFinalC] = board[maxInitialR][maxInitialC];
 	    board[maxInitialR][maxInitialC] = 0;
 	    System.out.println("MOVE SCORE:" + maxCapture);
+	    
 	    updatePieceDisplay();
     }
-    public int[][] legalMoves(int r, int c){
+    public int aiMoveCapture(int side, int[][] boardTemp){
+    	int[][] boardIn = new int[boardTemp.length][boardTemp[0].length];
+    	for(int i=0;i<8;i++){
+    		for(int j=0;j<8;j++){
+    			boardIn[i][j]=boardTemp[i][j];
+    		}
+    	}
+    	int maxInitialR=0;
+    	int maxInitialC=0;
+    	int maxFinalR=0;
+    	int maxFinalC=0;
+    	int maxCapture=-9999;
+    	for(int loopCounter = 0; loopCounter<loop; loopCounter++){
+	    	boolean hasLegalMoves = false;
+	    	int initialr=0;
+		    int initialc=0;
+	    	while(!hasLegalMoves){
+		    	ArrayList<Integer> rList = new ArrayList<Integer>();
+		    	ArrayList<Integer> cList = new ArrayList<Integer>();
+		    	for(int i=0; i<8; i++){
+		        	for(int j=0; j<8; j++){
+		        		if(boardIn[i][j]/10==side){
+		        			rList.add(i);
+		        			cList.add(j);
+		        		}
+		        	}
+		    	}
+		    	int index = (int)(Math.random()*rList.size());
+		    	initialr=Integer.valueOf(rList.get(index));
+		    	initialc=Integer.valueOf(cList.get(index));
+		    	int[][] arr = legalMoves(initialr,initialc,boardIn);
+		    	for(int[] foo: arr){
+		    		for(int bar:foo){
+		    			if(!hasLegalMoves&&bar==1){
+		    				hasLegalMoves=true;
+		    			}
+		    		}
+		    	}
+	    	}
+	    	int[][] arr = legalMoves(initialr,initialc,boardIn);
+	    	ArrayList<Integer> r = new ArrayList<Integer>();
+	    	ArrayList<Integer> c = new ArrayList<Integer>();
+	    	for(int i=0; i<8; i++){
+	        	for(int j=0; j<8; j++){
+	        		if(arr[i][j]!=0&&boardIn[i][j]!=0){
+	        			r.add(i);
+	        			c.add(j);
+	        		}
+	        	}
+	    	}
+	    	if(r.size()==0){
+	    		for(int i=0; i<8; i++){
+		        	for(int j=0; j<8; j++){
+		        		if(arr[i][j]!=0){
+		        			r.add(i);
+		        			c.add(j);
+		        		}
+		        	}
+		    	}
+	    	}
+	    	int index = (int)(Math.random()*r.size());
+		    int finalr=Integer.valueOf(r.get(index));
+		    int finalc=Integer.valueOf(c.get(index));
+	    	if(legalMoves(initialr,initialc,boardIn)[finalr][finalc]!=0){
+	    		if(boardIn[finalr][finalc]%10>maxCapture){
+	    			maxFinalR=finalr;
+	    			maxFinalC=finalc;
+	    			maxInitialR=initialr;
+	    			maxInitialC=initialc;
+	    			maxCapture=boardIn[finalr][finalc]%10;
+	    		}
+	    	}	
+    	}
+    	boardIn[maxFinalR][maxFinalC] = boardIn[maxInitialR][maxInitialC];
+	    boardIn[maxInitialR][maxInitialC] = 0;
+	    //System.out.println("MOVE SCORE:" + maxCapture);
+	    return maxCapture;
+    }
+    public int[][] legalMoves(int r, int c, int[][] inBoard){
     	int[][] out = new int[8][8];
-    	int piece = board[r][c]%10;
-    	int side = board[r][c]/10;
+    	int piece = inBoard[r][c]%10;
+    	int sideLegal = inBoard[r][c]/10;
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
         		boolean isLegal=false;
-        		if (side!=board[i][j]/10){ //Not occupied by your own pieces
+        		if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
         		
         			//Pawn
         			if (piece==0){ 
-        				if(board[i][j]==0 && c==j && ((side==2&&r+1==i)||(side==1&&r-1==i))){ //pawn moves forward by one space
+        				if(inBoard[i][j]==0 && c==j && ((sideLegal==2&&r+1==i)||(sideLegal==1&&r-1==i))){ //pawn moves forward by one space
         					isLegal=true;
         				}
-        				if(board[i][j]==0 && c==j && ((r==1&&side==2&&r+2==i)||(r==6&&side==1&&r-2==i))){ //pawn moves forward by two spaces
+        				if(inBoard[i][j]==0 && c==j && ((r==1&&sideLegal==2&&r+2==i)||(r==6&&sideLegal==1&&r-2==i))){ //pawn moves forward by two spaces
         					isLegal=true;
         				}
-        				if(board[i][j]!=0 && r+side*2-3==i && (c==j+1||c==j-1)){ //pawn captures diagonally
+        				if(inBoard[i][j]!=0 && r+sideLegal*2-3==i && (c==j+1||c==j-1)){ //pawn captures diagonally
         					isLegal=true;
         				}
         			}
@@ -374,8 +454,8 @@ public class Chess {
     	//Bishop
     	if (piece==2){ 
 			for(int i=r+1, j=c+1; i<8&&j<8; i++){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -387,8 +467,8 @@ public class Chess {
 				j++;
 			}
 			for(int i=r-1, j=c+1; i>=0&&j<8; i--){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -400,8 +480,8 @@ public class Chess {
 				j++;
 			}
 			for(int i=r+1, j=c-1; i<8&&j>=0; i++){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -413,8 +493,8 @@ public class Chess {
 				j--;
 			}
 			for(int i=r-1, j=c-1; i>=0&&j>=0; i--){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -430,8 +510,8 @@ public class Chess {
 		//Rook
 		if (piece==3){ 
 			for(int i=r+1; i<8; i++){
-				if (side!=board[i][c]/10){ //Not occupied by your own pieces
-					if(board[i][c]==0){
+				if (sideLegal!=inBoard[i][c]/10){ //Not occupied by your own pieces
+					if(inBoard[i][c]==0){
 						out[i][c]=1;
 					}else{
 						out[i][c]=1;
@@ -442,8 +522,8 @@ public class Chess {
 				}
 			}
 			for(int i=r-1; i>=0; i--){
-				if (side!=board[i][c]/10){ //Not occupied by your own pieces
-					if(board[i][c]==0){
+				if (sideLegal!=inBoard[i][c]/10){ //Not occupied by your own pieces
+					if(inBoard[i][c]==0){
 						out[i][c]=1;
 					}else{
 						out[i][c]=1;
@@ -454,8 +534,8 @@ public class Chess {
 				}
 			}
 			for(int j=c+1; j<8; j++){
-				if (side!=board[r][j]/10){ //Not occupied by your own pieces
-					if(board[r][j]==0){
+				if (sideLegal!=inBoard[r][j]/10){ //Not occupied by your own pieces
+					if(inBoard[r][j]==0){
 						out[r][j]=1;
 					}else{
 						out[r][j]=1;
@@ -466,8 +546,8 @@ public class Chess {
 				}
 			}
 			for(int j=c-1; j>=0; j--){
-				if (side!=board[r][j]/10){ //Not occupied by your own pieces
-					if(board[r][j]==0){
+				if (sideLegal!=inBoard[r][j]/10){ //Not occupied by your own pieces
+					if(inBoard[r][j]==0){
 						out[r][j]=1;
 					}else{
 						out[r][j]=1;
@@ -482,8 +562,8 @@ public class Chess {
 		//Queen
 		if (piece==4){ 
 			for(int i=r+1; i<8; i++){
-				if (side!=board[i][c]/10){ //Not occupied by your own pieces
-					if(board[i][c]==0){
+				if (sideLegal!=inBoard[i][c]/10){ //Not occupied by your own pieces
+					if(inBoard[i][c]==0){
 						out[i][c]=1;
 					}else{
 						out[i][c]=1;
@@ -494,8 +574,8 @@ public class Chess {
 				}
 			}
 			for(int i=r-1; i>=0; i--){
-				if (side!=board[i][c]/10){ //Not occupied by your own pieces
-					if(board[i][c]==0){
+				if (sideLegal!=inBoard[i][c]/10){ //Not occupied by your own pieces
+					if(inBoard[i][c]==0){
 						out[i][c]=1;
 					}else{
 						out[i][c]=1;
@@ -506,8 +586,8 @@ public class Chess {
 				}
 			}
 			for(int j=c+1; j<8; j++){
-				if (side!=board[r][j]/10){ //Not occupied by your own pieces
-					if(board[r][j]==0){
+				if (sideLegal!=inBoard[r][j]/10){ //Not occupied by your own pieces
+					if(inBoard[r][j]==0){
 						out[r][j]=1;
 					}else{
 						out[r][j]=1;
@@ -518,8 +598,8 @@ public class Chess {
 				}
 			}
 			for(int j=c-1; j>=0; j--){
-				if (side!=board[r][j]/10){ //Not occupied by your own pieces
-					if(board[r][j]==0){
+				if (sideLegal!=inBoard[r][j]/10){ //Not occupied by your own pieces
+					if(inBoard[r][j]==0){
 						out[r][j]=1;
 					}else{
 						out[r][j]=1;
@@ -530,8 +610,8 @@ public class Chess {
 				}
 			}
 			for(int i=r+1, j=c+1; i<8&&j<8; i++){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -543,8 +623,8 @@ public class Chess {
 				j++;
 			}
 			for(int i=r-1, j=c+1; i>=0&&j<8; i--){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -556,8 +636,8 @@ public class Chess {
 				j++;
 			}
 			for(int i=r+1, j=c-1; i<8&&j>=0; i++){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -569,8 +649,8 @@ public class Chess {
 				j--;
 			}
 			for(int i=r-1, j=c-1; i>=0&&j>=0; i--){
-				if (side!=board[i][j]/10){ //Not occupied by your own pieces
-					if(board[i][j]==0){
+				if (sideLegal!=inBoard[i][j]/10){ //Not occupied by your own pieces
+					if(inBoard[i][j]==0){
 						out[i][j]=1;
 					}else{
 						out[i][j]=1;
@@ -582,7 +662,6 @@ public class Chess {
 				j--;
 			}
 		}
-    	
     	return out;
     }
     public int[][] multiplyArrayElements(int[][] foo, int[][] bar){
@@ -594,7 +673,6 @@ public class Chess {
     	}
     	return out;
     }
-    
     public static void main(String[] args) {
         // TODO code application logic here
         Chess chess = new Chess();
