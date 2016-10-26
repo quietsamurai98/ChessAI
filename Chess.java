@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.*;
 public class Chess {
         
     /**
@@ -34,7 +35,8 @@ public class Chess {
     boolean moving;
     int lastI;
     int lastJ;
-    boolean AIvsAI=true;
+    boolean AIvsAI=false;
+    int depth = 3;
         
     public Chess() {
     }
@@ -109,39 +111,47 @@ public class Chess {
         	kingCount=0;
 			for(int[] foo:board){
 				for(int bar:foo){
-					if(bar%10==5){
+					if(bar%10==6){
 						kingCount++;
 					}
 				}
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = NoPlanningMove(1,board);
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-    			board[coords[0]][coords[1]]=0;
+				int[] coords = PlanAheadMove(1,board,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],1,board));
+    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
+    			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
 			}
+			waitms(0);
 			kingCount=0;
 			for(int[] foo:board){
 				for(int bar:foo){
-					if(bar%10==5){
+					if(bar%10==6){
 						kingCount++;
 					}
 				}
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = NoPlanningMove(2,board);
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-    			board[coords[0]][coords[1]]=0;
+				int[] coords = PlanAheadMove(2,board,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
+    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
+    			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
 			}
-			
+			waitms(0);
         }
+    }
+    public void waitms(long ms){
+    	try{
+    		Thread.sleep(ms);
+    	} catch (InterruptedException  e) {
+    		
+    	}
     }
     public void loadPieceSprites(){
     	
@@ -216,15 +226,15 @@ public class Chess {
     			System.out.println("    Move score was " + analyzeMove(i,j,lastI,lastJ,board[lastI][lastJ]/10,board));
     			board[i][j] = board[lastI][lastJ];
     			board[lastI][lastJ]=0;
+	    		highlightMoves(new int[8][8]);
+	    		updatePieceDisplay();
+	    		int[] coords = PlanAheadMove(2,board,depth);
+    			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+    			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
+    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
+    			board[coords[0]][coords[1]]=0;
+	    		updatePieceDisplay();
     		}
-    		highlightMoves(new int[8][8]);
-    		updatePieceDisplay();
-    		int[] coords = NoPlanningMove(2,board);
-    		System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-    		System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
-			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-    		board[coords[0]][coords[1]]=0;
-    		updatePieceDisplay();
     	}
     }
     //To move white piece, side=1, to move black piece, side=2
@@ -599,27 +609,94 @@ public class Chess {
         int fitStartC=-1;
         int fitEndR=-1;
         int fitEndC=-1;
-        for(int pieceR=0; pieceR<8; pieceR++){
-        	for(int pieceC=0; pieceC<8; pieceC++){
-        		if(myPieces[pieceR][pieceC]==1){
-        			int[][] legals = legalMoves(pieceR,pieceC,inBoard);
-        			for(int legalR=0; legalR<8; legalR++){
-        				for(int legalC=0; legalC<8; legalC++){
-        					if(legals[legalR][legalC]==1){
-        						double fit = analyzeMove(pieceR,pieceC,legalR,legalC,side,inBoard);
-        						if (fit>maxFitness){
-        							fitStartR=pieceR;
-        							fitStartC=pieceC;
-        							fitEndR=legalR;
-        							fitEndC=legalC;
-        						}
-        					}
-        				}
-        			}
-        		}
+        ArrayList<Integer> randomOrder = new ArrayList<>();
+		for (int i = 0; i <= 63; i++)
+		{
+		    randomOrder.add(i);
+		}
+		Collections.shuffle(randomOrder);
+        for(int foo:randomOrder){
+    		int pieceR=foo/8;
+    		int pieceC=foo%8;
+    		if(myPieces[pieceR][pieceC]==1){
+    			int[][] legals = legalMoves(pieceR,pieceC,inBoard);
+    			for(int legalR=0; legalR<8; legalR++){
+    				for(int legalC=0; legalC<8; legalC++){
+    					if(legals[legalR][legalC]==1){
+    						double fit = analyzeMove(pieceR,pieceC,legalR,legalC,side,inBoard);
+    						if (fit>maxFitness){
+    							fitStartR=pieceR;
+    							fitStartC=pieceC;
+    							fitEndR=legalR;
+    							fitEndC=legalC;
+    						}
+    					}
+    				}
+    			}
+    		}
+    	}
+        int[] out = {fitStartR,fitStartC,fitEndR,fitEndC};
+        return out;
+    }
+    
+    public int[] PlanAheadMove(int side, int[][] tempArr, int searchDepth){
+    	int[][] inBoard = new int[tempArr.length][tempArr[0].length];
+    	for(int i=0; i<tempArr.length; i++){
+        	for (int j=0; j<tempArr[0].length; j++){
+        		inBoard[i][j]=tempArr[i][j];
         	}
         }
-        int[] out = {fitStartR,fitStartC,fitEndR,fitEndC};
+        int[][] myPieces = new int[tempArr.length][tempArr[0].length];
+    	for(int i=0; i<tempArr.length; i++){
+        	for (int j=0; j<tempArr[0].length; j++){
+        		if(tempArr[i][j]/(side*10)==1)
+        			myPieces[i][j]=1;
+        	}
+        }
+        double maxFitness = -99999999;
+        int fitStartR=-1;
+        int fitStartC=-1;
+        int fitEndR=-1;
+        int fitEndC=-1;
+        ArrayList<Integer> randomOrder = new ArrayList<>();
+		for (int i = 0; i < 64; i++)
+		{
+		    randomOrder.add(i);
+		}
+		Collections.shuffle(randomOrder);
+        for(int foo:randomOrder){
+    		int pieceR=foo/8;
+    		int pieceC=foo%8;
+    		if(myPieces[pieceR][pieceC]==1){
+    			int[][] legals = legalMoves(pieceR,pieceC,inBoard);
+    			for(int legalR=0; legalR<8; legalR++){
+    				for(int legalC=0; legalC<8; legalC++){
+    					if(legals[legalR][legalC]==1){
+				    		double fit = analyzeMove(pieceR,pieceC,legalR,legalC,side,inBoard);
+    						if (searchDepth>0){
+    							int[][] outBoard = new int[inBoard.length][inBoard[0].length];
+						    	for(int i=0; i<inBoard.length; i++){
+						        	for (int j=0; j<inBoard[0].length; j++){
+						        		outBoard[i][j]=inBoard[i][j];
+						        	}
+						        }
+								outBoard[legalR][legalC] = outBoard[pieceR][pieceC];
+					    		outBoard[pieceR][pieceC]=0;
+					    		int[] coords = PlanAheadMove((side%2)+1, outBoard, searchDepth-1);
+					    		fit += analyzeMove(coords[2],coords[3],coords[0],coords[1],(side%2)+1,outBoard);
+					    	}
+    						if (fit>maxFitness){
+    							fitStartR=pieceR;
+    							fitStartC=pieceC;
+    							fitEndR=legalR;
+    							fitEndC=legalC;
+    						}
+    					}
+    				}
+    			}
+    		}
+    	}
+    	int[] out = {fitStartR,fitStartC,fitEndR,fitEndC};
         return out;
     }
 }
