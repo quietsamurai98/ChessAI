@@ -36,15 +36,25 @@ public class Chess {
     int lastI;
     int lastJ;
     boolean AIvsAI=false;
-    int depth = 3;
+    int depth = 4;
     int currentSide=1;
     
-    public Chess() {
+    public Chess(int ARGUMENT_DEPTH, boolean ARGUMENT_AIvsAI) {
+    	depth = ARGUMENT_DEPTH;
+    	AIvsAI= ARGUMENT_AIvsAI;
     }
     public static void main(String[] args) {
-        // TODO code application logic here
-        Chess chess = new Chess();
-        chess.pseudoMain();
+        if (args.length==1){
+        	Chess chess = new Chess(Integer.valueOf(args[0]),false);
+        	chess.pseudoMain();
+        } else if (args.length>=2){
+        	Chess chess = new Chess(Integer.valueOf(args[0]),Boolean.valueOf(args[1]));
+        	chess.pseudoMain();
+        } else {
+        	Chess chess = new Chess(3, false);
+        	chess.pseudoMain();
+        }
+        
         
     }
     public void createBoardWindow(){
@@ -79,7 +89,7 @@ public class Chess {
 				squaresPanels[i][j].setFont(new Font("Segoe UI Symbol", squaresPanels[i][j].getFont().getStyle(), 70));
 				squaresPanels[i][j].setForeground(Color.BLACK);
         		if(squareColor){
-        			squaresPanels[i][j].setBackground(Color.lightGray);
+        			squaresPanels[i][j].setBackground(Color.gray);
         		} else {
         			squaresPanels[i][j].setBackground(Color.darkGray);
         		}
@@ -195,12 +205,13 @@ public class Chess {
     public void updatePieceDisplay(){
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
-        		if(board[i][j]!=0){
-        			try{
-        				squaresPanels[i][j].setText(pieceSprites[board[i][j]/10-1][board[i][j]%10]);
-        			} catch (NullPointerException e) {
-    					e.printStackTrace();
-    				}
+        		
+        		if(board[i][j]/10==1){
+        			squaresPanels[i][j].setText(pieceSprites[0][board[i][j]%10]);
+        			squaresPanels[i][j].setForeground(Color.white);
+        		} else if(board[i][j]/10==2){
+        			squaresPanels[i][j].setText(pieceSprites[0][board[i][j]%10]);
+        			squaresPanels[i][j].setForeground(Color.black);
         		} else {
         			squaresPanels[i][j].setText(" ");
         		}
@@ -212,13 +223,13 @@ public class Chess {
         	for(int j=0; j<8; j++){
     			if((i%2+j%2)%2==0){
     				if(legals[i][j]==1){
-    					squaresPanels[i][j].setBackground(new Color(255,255,0));
+    					squaresPanels[i][j].setBackground(new Color(190,190,0));
     				} else {
-    					squaresPanels[i][j].setBackground(Color.lightGray);
+    					squaresPanels[i][j].setBackground(Color.gray);
     				}
     			} else {
     				if(legals[i][j]==1){
-    					squaresPanels[i][j].setBackground(new Color(128,128,0));
+    					squaresPanels[i][j].setBackground(new Color(100,100,0));
     				} else {
     					squaresPanels[i][j].setBackground(Color.darkGray);
     				}
@@ -683,7 +694,7 @@ public class Chess {
         int fitStartC=-1;
         int fitEndR=-1;
         int fitEndC=-1;
-        ArrayList<Integer> randomOrder = new ArrayList<>();
+        ArrayList<Integer> randomOrder = new ArrayList<Integer>();
 		for (int i = 0; i <= 63; i++)
 		{
 		    randomOrder.add(i);
@@ -732,7 +743,7 @@ public class Chess {
         int fitStartC=-1;
         int fitEndR=-1;
         int fitEndC=-1;
-        ArrayList<Integer> randomOrder = new ArrayList<>();
+        ArrayList<Integer> randomOrder = new ArrayList<Integer>();
 		for (int i = 0; i < 64; i++)
 		{
 		    randomOrder.add(i);
