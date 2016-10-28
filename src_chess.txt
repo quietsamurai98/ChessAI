@@ -1,2 +1,0 @@
-C:\Users\Kenneth\Desktop\Chess\src\Chess.java
-C:\Users\Kenneth\Desktop\Chess\src\ChessRunner.java
