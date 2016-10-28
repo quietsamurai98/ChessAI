@@ -125,9 +125,10 @@ public class Chess {
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = PlanAheadMove(1,board,depth);
+				int[] coords = aiMiniMax(board,1,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],1,board));
+    			//System.out.println("    Move fitness was " + coords[4]);
     			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
     			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
@@ -143,9 +144,10 @@ public class Chess {
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = PlanAheadMove(2,board,depth);
+				int[] coords = aiMiniMax(board,2,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
+    			//System.out.println("    Move fitness was " + coords[4]);
     			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
     			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
@@ -197,7 +199,12 @@ public class Chess {
         	for(int j=0; j<8; j++){
         		if(board[i][j]!=0){
         			try{
-        				squaresPanels[i][j].setText(pieceSprites[board[i][j]/10-1][board[i][j]%10]);
+        				squaresPanels[i][j].setText(pieceSprites[1*(board[i][j]/10-1)][board[i][j]%10]);
+        				if(board[i][j]/10==1){
+        					squaresPanels[i][j].setForeground(Color.WHITE);
+        				} else {
+        					squaresPanels[i][j].setForeground(Color.BLACK);
+        				}
         			} catch (NullPointerException e) {
     					e.printStackTrace();
     				}
@@ -227,7 +234,7 @@ public class Chess {
         }
     }  
     public void clickedOn(int i, int j){
-    	if(board[i][j]/10!=2||moving){
+    	if((board[i][j]/10!=2||moving)&&!testGameOver(board)){
     		if(!moving){
 	    		lastI=i;
 	    		lastJ=j;
@@ -247,6 +254,7 @@ public class Chess {
 		    		int[] coords = aiMiniMax(board,2,depth);
 	    			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
 	    			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
+	    			//System.out.println("    Move fitness was " + coords[4]);
 	    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
 	    			board[coords[0]][coords[1]]=0;
 		    		updatePieceDisplay();
