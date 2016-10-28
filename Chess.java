@@ -36,15 +36,26 @@ public class Chess {
     int lastI;
     int lastJ;
     boolean AIvsAI=false;
-    int depth = 3;
+    int depth = 4;
     int currentSide=1;
+    boolean gameOver=false;
     
-    public Chess() {
+    public Chess(int ARGUMENT_DEPTH, boolean ARGUMENT_AIvsAI) {
+    	depth = ARGUMENT_DEPTH;
+    	AIvsAI= ARGUMENT_AIvsAI;
     }
     public static void main(String[] args) {
-        // TODO code application logic here
-        Chess chess = new Chess();
-        chess.pseudoMain();
+        if (args.length==1){
+        	Chess chess = new Chess(Integer.valueOf(args[0]),false);
+        	chess.pseudoMain();
+        } else if (args.length>=2){
+        	Chess chess = new Chess(Integer.valueOf(args[0]),Boolean.valueOf(args[1]));
+        	chess.pseudoMain();
+        } else {
+        	Chess chess = new Chess(3, false);
+        	chess.pseudoMain();
+        }
+        
         
     }
     public void createBoardWindow(){
@@ -79,7 +90,7 @@ public class Chess {
 				squaresPanels[i][j].setFont(new Font("Segoe UI Symbol", squaresPanels[i][j].getFont().getStyle(), 70));
 				squaresPanels[i][j].setForeground(Color.BLACK);
         		if(squareColor){
-        			squaresPanels[i][j].setBackground(Color.lightGray);
+        			squaresPanels[i][j].setBackground(Color.gray);
         		} else {
         			squaresPanels[i][j].setBackground(Color.darkGray);
         		}
@@ -125,10 +136,9 @@ public class Chess {
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = aiMiniMax(board,1,depth);
+				int[] coords = PlanAheadMove(1,board,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],1,board));
-    			//System.out.println("    Move fitness was " + coords[4]);
     			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
     			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
@@ -144,10 +154,9 @@ public class Chess {
 			}
 			kingsAreAlive=kingCount==2;
 			if(kingsAreAlive){
-				int[] coords = aiMiniMax(board,2,depth);
+				int[] coords = PlanAheadMove(2,board,depth);
     			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
     			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
-    			//System.out.println("    Move fitness was " + coords[4]);
     			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
     			board[coords[0]][coords[1]]=0;
     			updatePieceDisplay();
@@ -197,17 +206,13 @@ public class Chess {
     public void updatePieceDisplay(){
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
-        		if(board[i][j]!=0){
-        			try{
-        				squaresPanels[i][j].setText(pieceSprites[1*(board[i][j]/10-1)][board[i][j]%10]);
-        				if(board[i][j]/10==1){
-        					squaresPanels[i][j].setForeground(Color.WHITE);
-        				} else {
-        					squaresPanels[i][j].setForeground(Color.BLACK);
-        				}
-        			} catch (NullPointerException e) {
-    					e.printStackTrace();
-    				}
+        		
+        		if(board[i][j]/10==1){
+        			squaresPanels[i][j].setText(pieceSprites[0][board[i][j]%10]);
+        			squaresPanels[i][j].setForeground(Color.white);
+        		} else if(board[i][j]/10==2){
+        			squaresPanels[i][j].setText(pieceSprites[0][board[i][j]%10]);
+        			squaresPanels[i][j].setForeground(Color.black);
         		} else {
         			squaresPanels[i][j].setText(" ");
         		}
@@ -219,13 +224,13 @@ public class Chess {
         	for(int j=0; j<8; j++){
     			if((i%2+j%2)%2==0){
     				if(legals[i][j]==1){
-    					squaresPanels[i][j].setBackground(new Color(255,255,0));
+    					squaresPanels[i][j].setBackground(new Color(190,190,0));
     				} else {
-    					squaresPanels[i][j].setBackground(Color.lightGray);
+    					squaresPanels[i][j].setBackground(Color.gray);
     				}
     			} else {
     				if(legals[i][j]==1){
-    					squaresPanels[i][j].setBackground(new Color(128,128,0));
+    					squaresPanels[i][j].setBackground(new Color(100,100,0));
     				} else {
     					squaresPanels[i][j].setBackground(Color.darkGray);
     				}
@@ -233,18 +238,45 @@ public class Chess {
         	}
         }
     }  
+    public void highlightMoves(int r, int c, int[][] legals){
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+//        		if(legals[i][j]==1){
+//        			int[][] tempArrMove = copyArr(board);
+//        			makeMove(r,c,i,j,tempArrMove);
+//        			if (kingChecked(tempArrMove,(board[r][c]/10))){
+//        				legals[i][j]=0;
+//        			}
+//        		}
+    			if((i%2+j%2)%2==0){
+    				if(legals[i][j]==1){
+    					squaresPanels[i][j].setBackground(new Color(190,190,0));
+    				} else {
+    					squaresPanels[i][j].setBackground(Color.gray);
+    				}
+    			} else {
+    				if(legals[i][j]==1){
+    					squaresPanels[i][j].setBackground(new Color(100,100,0));
+    				} else {
+    					squaresPanels[i][j].setBackground(Color.darkGray);
+    				}
+    			}
+        	}
+        }
+    }
     public void clickedOn(int i, int j){
-    	if((board[i][j]/10!=2||moving)&&!testGameOver(board)){
+    	
+    	if(board[i][j]/10!=2||moving){
     		if(!moving){
 	    		lastI=i;
 	    		lastJ=j;
 	    		moving = true;
 	    		if(board[i][j]!=0){
-	    			highlightMoves(legalMoves(i,j,board));
+	    			highlightMoves(i,j,legalMoves(i,j,board,""));
 	    		}
 	    	} else {
 	    		moving = false;
-	    		if(legalMoves(lastI,lastJ,board)[i][j]!=0){
+	    		if(legalMoves(lastI,lastJ,board,"")[i][j]!=0){
 	    			System.out.println("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
 	    			System.out.println("    Move score was " + analyzeMove(i,j,lastI,lastJ,board[lastI][lastJ]/10,board));
 	    			board[i][j] = board[lastI][lastJ];
@@ -254,7 +286,6 @@ public class Chess {
 		    		int[] coords = aiMiniMax(board,2,depth);
 	    			System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
 	    			System.out.println("    Move score was " + analyzeMove(coords[2],coords[3],coords[0],coords[1],2,board));
-	    			//System.out.println("    Move fitness was " + coords[4]);
 	    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
 	    			board[coords[0]][coords[1]]=0;
 		    		updatePieceDisplay();
@@ -275,6 +306,25 @@ public class Chess {
     		}
     	}
     	return kingCount!=2;
+    }
+    public boolean kingChecked(int[][] PARAMETER_ARRAY, int side){
+    	int[][] inBoard=copyArr(PARAMETER_ARRAY);
+    	int[][] captureBoard = new int[8][8];
+    	int otherSide = side%2+1;
+    	int kingR=-1;
+    	int kingC=-1;
+    	for(int r=0; r<8; r++){
+    		for(int c=0; c<8; c++){
+    			if(inBoard[r][c]/10==otherSide){
+    				addArrayElements(captureBoard,legalMoves(r,c,inBoard),"");
+    			} else if(inBoard[r][c]%10==6){
+    				kingR=r;
+    				kingC=c;
+    			}
+    		}
+    	}
+    	return multiplyArrayElements(inBoard, captureBoard, "")[kingR][kingC]!=0;
+    	
     }
     //To move white piece, side=1, to move black piece, side=2
     public int[][] legalMoves(int r, int c, int[][] tempArr){
@@ -538,6 +588,279 @@ public class Chess {
     	
     	return out;
     }
+    
+    public int[][] legalMoves(int r, int c, int[][] tempArr, String CheckForCheck){
+    	int[][] inArr = new int[tempArr.length][tempArr[0].length];
+    	for(int i=0; i<tempArr.length; i++){
+        	for (int j=0; j<tempArr[0].length; j++){
+        		inArr[i][j]=tempArr[i][j];
+        	}
+        }
+    	int[][] out = new int[8][8];
+    	int piece = inArr[r][c]%10;
+    	int side = inArr[r][c]/10;
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		boolean isLegal=false;
+        		if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+        		
+        			//Pawn
+        			if (piece==1){ 
+        				if(inArr[i][j]==0 && c==j && ((side==2&&r+1==i)||(side==1&&r-1==i))){ //pawn moves forward by one space
+        					isLegal=true;
+        				}
+        				if(inArr[i][j]==0 && c==j && ((r==1&&side==2&&r+2==i&&inArr[i-1][j]==0)||(r==6&&side==1&&r-2==i&&inArr[i+1][j]==0))){ //pawn moves forward by two spaces
+        					isLegal=true;
+        				}
+        				if(inArr[i][j]!=0 && r+side*2-3==i && (c==j+1||c==j-1)){ //pawn captures diagonally
+        					isLegal=true;
+        				}
+        			}
+        			
+        			//Knight
+        			if (piece==2){ 
+        				if((i+1==r && j+2==c)||(i-1==r && j+2==c)||(i+1==r && j-2==c)||(i-1==r && j-2==c)||(i+2==r && j+1==c)||(i-2==r && j+1==c)||(i+2==r && j-1==c)||(i-2==r && j-1==c)){ //Knight's moves 
+        					isLegal=true;
+        				}
+        			}
+        			
+        			//King
+        			if (piece==6){ 
+        				if((Math.abs(i-r)<=1&&Math.abs(j-c)<=1)&&(i!=r||j!=c)){
+        					isLegal=true;
+        				}
+        			}
+        		}
+        		if (isLegal){
+        			out[i][j]=1;
+        		}
+        	}
+    	}
+    	//Bishop
+    	if (piece==3){ 
+			for(int i=r+1, j=c+1; i<8&&j<8; i++){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+				j++;
+			}
+			for(int i=r-1, j=c+1; i>=0&&j<8; i--){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+				j++;
+			}
+			for(int i=r+1, j=c-1; i<8&&j>=0; i++){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+				j--;
+			}
+			for(int i=r-1, j=c-1; i>=0&&j>=0; i--){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+				j--;
+			}
+		}
+		
+		//Rook
+		if (piece==4){ 
+			for(int i=r+1; i<8; i++){
+				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
+					if(inArr[i][c]==0){
+						out[i][c]=1;
+					}else{
+						out[i][c]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+			}
+			for(int i=r-1; i>=0; i--){
+				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
+					if(inArr[i][c]==0){
+						out[i][c]=1;
+					}else{
+						out[i][c]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+			}
+			for(int j=c+1; j<8; j++){
+				if (side!=inArr[r][j]/10){ //Not occupied by your own pieces
+					if(inArr[r][j]==0){
+						out[r][j]=1;
+					}else{
+						out[r][j]=1;
+						j=9999999;
+					}
+				} else {
+					j=9999999;
+				}
+			}
+			for(int j=c-1; j>=0; j--){
+				if (side!=inArr[r][j]/10){ //Not occupied by your own pieces
+					if(inArr[r][j]==0){
+						out[r][j]=1;
+					}else{
+						out[r][j]=1;
+						j=-9999999;
+					}
+				} else {
+					j=-9999999;
+				}
+			}
+		}
+		
+		//Queen
+		if (piece==5){ 
+			for(int i=r+1; i<8; i++){
+				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
+					if(inArr[i][c]==0){
+						out[i][c]=1;
+					}else{
+						out[i][c]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+			}
+			for(int i=r-1; i>=0; i--){
+				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
+					if(inArr[i][c]==0){
+						out[i][c]=1;
+					}else{
+						out[i][c]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+			}
+			for(int j=c+1; j<8; j++){
+				if (side!=inArr[r][j]/10){ //Not occupied by your own pieces
+					if(inArr[r][j]==0){
+						out[r][j]=1;
+					}else{
+						out[r][j]=1;
+						j=9999999;
+					}
+				} else {
+					j=9999999;
+				}
+			}
+			for(int j=c-1; j>=0; j--){
+				if (side!=inArr[r][j]/10){ //Not occupied by your own pieces
+					if(inArr[r][j]==0){
+						out[r][j]=1;
+					}else{
+						out[r][j]=1;
+						j=-9999999;
+					}
+				} else {
+					j=-9999999;
+				}
+			}
+			for(int i=r+1, j=c+1; i<8&&j<8; i++){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+				j++;
+			}
+			for(int i=r-1, j=c+1; i>=0&&j<8; i--){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+				j++;
+			}
+			for(int i=r+1, j=c-1; i<8&&j>=0; i++){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=9999999;
+					}
+				} else {
+					i=9999999;
+				}
+				j--;
+			}
+			for(int i=r-1, j=c-1; i>=0&&j>=0; i--){
+				if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
+					if(inArr[i][j]==0){
+						out[i][j]=1;
+					}else{
+						out[i][j]=1;
+						i=-9999999;
+					}
+				} else {
+					i=-9999999;
+				}
+				j--;
+			}
+		}
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		if(out[i][j]==1){
+        			int[][] tempArrMove = copyArr(board);
+        			makeMove(r,c,i,j,tempArrMove);
+        			if (kingChecked(tempArrMove,(board[r][c]/10))){
+        				out[i][j]=0;
+        			}
+        		}
+        	}
+    	}
+    	return out;
+    }
+    
     public int[][] multiplyArrayElements(int[][] foo, int[][] bar){
     	int[][] out = new int[8][8];
     	for(int i=0; i<8; i++){
@@ -546,6 +869,31 @@ public class Chess {
         	}
     	}
     	return out;
+    }
+    public int[][] multiplyArrayElements(int[][] foo, int[][] bar, String bat){
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		foo[i][j]=foo[i][j]*bar[i][j];
+        	}
+    	}
+    	return foo;
+    }
+    public int[][] addArrayElements(int[][] foo, int[][] bar){
+    	int[][] out = new int[8][8];
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		out[i][j]=foo[i][j]+bar[i][j];
+        	}
+    	}
+    	return out;
+    }
+    public int[][] addArrayElements(int[][] foo, int[][] bar, String bat){
+    	for(int i=0; i<8; i++){
+        	for(int j=0; j<8; j++){
+        		foo[i][j]=foo[i][j]+bar[i][j];
+        	}
+    	}
+    	return foo;
     }
     //Returns the fitness of a move. Fitness is defined as (your postmove score - enemy postmove score)-(your initial score - initial enemy score)
     public double analyzeMove(int startR, int startC, int endR, int endC, int side, int[][] tempArr){
@@ -691,7 +1039,7 @@ public class Chess {
         int fitStartC=-1;
         int fitEndR=-1;
         int fitEndC=-1;
-        ArrayList<Integer> randomOrder = new ArrayList<>();
+        ArrayList<Integer> randomOrder = new ArrayList<Integer>();
 		for (int i = 0; i <= 63; i++)
 		{
 		    randomOrder.add(i);
@@ -740,7 +1088,7 @@ public class Chess {
         int fitStartC=-1;
         int fitEndR=-1;
         int fitEndC=-1;
-        ArrayList<Integer> randomOrder = new ArrayList<>();
+        ArrayList<Integer> randomOrder = new ArrayList<Integer>();
 		for (int i = 0; i < 64; i++)
 		{
 		    randomOrder.add(i);
@@ -805,7 +1153,13 @@ public class Chess {
         						moves.add(moveItem);
         						int[][] recurArr = copyArr(arr);
         						makeMove(moveItem,recurArr);
-        						if(side==1){
+        						if(kingChecked(recurArr, side)){
+        							if(moves.size()==0){
+        								moves.clear();
+        							} else{
+        								moves.remove(moves.size()-1);
+        							}
+        						} else if(side==1){
 						    		scores.add(aiMiniMax(recurArr,2,searchDepth-1)[4]);
 						    	} else if(side==2){
 						    		scores.add(aiMiniMax(recurArr,1,searchDepth-1)[4]);
