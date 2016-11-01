@@ -353,7 +353,7 @@ public class Chess {
 			    	}
 		    		highlightMoves(new int[8][8]);
 		    		updatePieceDisplay();
-		    		currentSide=2;
+		    		currentSide=1;
 		    		int[] coords = aiMiniMax(board,2,depth);
 	    			
 	    			if(coords[3]==-1){
@@ -392,6 +392,17 @@ public class Chess {
     		}
     	}
     	return kingCount!=2;
+    }
+    public boolean onlyKings(int[][] PARAMETER_ARRAY){
+    	int otherCount=0;
+    	for(int[] foo:PARAMETER_ARRAY){
+    		for(int bar:foo){
+    			if(bar%10!=6&&bar%10!=0){
+    				otherCount++;
+    			}
+    		}
+    	}
+    	return otherCount==0;
     }
     public boolean kingChecked(int[][] PARAMETER_ARRAY, int side){
     	int[][] inBoard=copyArr(PARAMETER_ARRAY);
