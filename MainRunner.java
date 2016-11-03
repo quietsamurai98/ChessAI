@@ -22,44 +22,51 @@ public class MainRunner {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-    	JFrame newGameFrame = new JFrame();
-    	newGameFrame.setTitle("Chess Interface");
+        final JFrame setupFrame = new JFrame();
+        setupFrame.setTitle("New Game Setup");
+        setupFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setupFrame.setFocusable(true);
+        setupFrame.requestFocus();
+        setupFrame.setLayout(new GridLayout(2,2,0,0));
         
-        newGameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        newGameFrame.setFocusable(true);
-        newGameFrame.requestFocus();
-    	newGameFrame.setLayout(new GridLayout(2,2,0,0));
-    	JButton humanVhuman = new JButton("Human vs Human");
-    	humanVhuman.addMouseListener(new java.awt.event.MouseAdapter() {
-        	public void mouseClicked(java.awt.event.MouseEvent e) {
-        		ChessGUI gui=new ChessGUI(false,false);
-        	}          
-      	});
-    	JButton aiVai = new JButton("AI vs AI");
-    	aiVai.addMouseListener(new java.awt.event.MouseAdapter() {
-        	public void mouseClicked(java.awt.event.MouseEvent e) {
-        		ChessGUI gui=new ChessGUI(true,true);
-        	}          
-      	});
-    	JButton humanVai = new JButton("Human vs AI \r(Play as White)");
-    	humanVai.addMouseListener(new java.awt.event.MouseAdapter() {
-        	public void mouseClicked(java.awt.event.MouseEvent e) {
-        		ChessGUI gui=new ChessGUI(false,true);
-        	}          
-      	});
-    	JButton aiVhuman = new JButton("Human vs AI \r(Play as Black)");
-    	aiVhuman.addMouseListener(new java.awt.event.MouseAdapter() {
-        	public void mouseClicked(java.awt.event.MouseEvent e) {
-        		ChessGUI gui=new ChessGUI(true,false);
-        	}          
-      	});
-    	newGameFrame.add(humanVhuman);
-    	newGameFrame.add(aiVai);
-    	newGameFrame.add(humanVai);
-    	newGameFrame.add(aiVhuman);
-    	newGameFrame.pack();
-        newGameFrame.setResizable(false);
-        newGameFrame.setVisible(true);
+        JButton aiDuel = new JButton("AI vs AI");
+        aiDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	setupFrame.dispose();
+                ChessGUI gui=new ChessGUI(true,true);
+            }
+        });
+        setupFrame.add(aiDuel);
         
+        JButton humanDuel = new JButton("Human vs Human");
+        humanDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	setupFrame.dispose();
+                ChessGUI gui=new ChessGUI(false,false);
+            }
+        });
+        setupFrame.add(humanDuel);
+        
+        JButton humanVai = new JButton("Human vs AI");
+        humanVai.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	setupFrame.dispose();
+                ChessGUI gui=new ChessGUI(false,true);
+            }
+        });
+        setupFrame.add(humanVai);
+        
+        JButton aiVhuman = new JButton("AI vs Human");
+        aiVhuman.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	setupFrame.dispose();
+                ChessGUI gui=new ChessGUI(true,false);
+            }
+        });
+        setupFrame.add(aiVhuman);
+        
+        setupFrame.pack();
+        setupFrame.setResizable(false);
+        setupFrame.setVisible(true);
     }
 }

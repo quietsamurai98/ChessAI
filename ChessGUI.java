@@ -11,7 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
-public class ChessGUI {
+public class ChessGUI{
 	int depth = 3;
 	JFrame chessInterface;
     JPanel boardPanel;
@@ -63,18 +63,15 @@ public class ChessGUI {
     			pieceSprites[i][j] = new ImageIcon(rawPieceSprites[i][j].getScaledInstance(boardSize/8, boardSize/8,Image.SCALE_SMOOTH));
     		}
     	}
-    	JFrame chessInterface = new JFrame();
+    	chessInterface = new JFrame();
         chessInterface.setTitle("Chess Interface");
         
         chessInterface.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chessInterface.setFocusable(true);
         chessInterface.requestFocus();
-
+		chessInterface.setBackground(Color.black);
         boardPanel = new JPanel();
-        boardPanel.setMinimumSize(new Dimension(boardSize,boardSize));
-        boardPanel.setMaximumSize(new Dimension(boardSize,boardSize));
-        boardPanel.setPreferredSize(new Dimension(boardSize,boardSize));
-        boardPanel.setSize(boardSize,boardSize);
+        
         boardPanel.setLayout(new GridLayout(8,8,0,0));
         int squareSize=boardSize/8;
     	squaresPanels = new JLabel[8][8];
@@ -115,18 +112,17 @@ public class ChessGUI {
         	squareColor=!squareColor;
         }
         chessInterface.add(boardPanel);
+		chessInterface.setResizable(false);
         chessInterface.pack();
-        chessInterface.setResizable(false);
         chessInterface.setVisible(true);
-        
+        board=new int[8][8];
+        board = copyArr(reset);
+        updatePieceDisplay();
         if(AI_VS_AI){
         	loopAI();
         } else if (WHITE_AI){
         	currentSide=2;
         	gameOver=false;
-        	board=new int[8][8];
-       		board = copyArr(reset);
-        	updatePieceDisplay();
         	highlightMoves(new int[8][8]);
         	moving = false;
         	lastI=0;
@@ -154,8 +150,6 @@ public class ChessGUI {
 			}
         } else {
         	gameOver=false;
-        	board=new int[8][8];
-       		board = copyArr(reset);
         	updatePieceDisplay();
         	highlightMoves(new int[8][8]);
         	moving = false;
@@ -232,8 +226,6 @@ public class ChessGUI {
     
     private void loopAI(){
     	gameOver=false;
-        board=new int[8][8];
-        board = copyArr(reset);
         updatePieceDisplay();
         highlightMoves(new int[8][8]);
         moving = false;
@@ -345,8 +337,10 @@ public class ChessGUI {
         		} else {
         			squaresPanels[i][j].setIcon(null);
         		}
+        		squaresPanels[i][j].paintImmediately(0,0,boardSize/8+1,boardSize/8+1);
         	}
         }
+        chessInterface.repaint(1,0,0,boardSize,boardSize);
     }
     public int[][] legalMoves(int r, int c, int[][] tempArr){
     	int[][] inArr = new int[tempArr.length][tempArr[0].length];
