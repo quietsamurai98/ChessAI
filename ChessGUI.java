@@ -122,8 +122,9 @@ public class ChessGUI{
         chessInterface.add(boardPanel,c);
         
         textOutput = new JTextArea(1,1);
+        textOutput.setFont(new Font("monospaced", Font.PLAIN, 12));
         //textOutput.setRows(boardSize/textOutput.getScrollableUnitIncrement(null,0,SwingConstants.HORIZONTAL)-15);
-        textOutput.setColumns(32);
+        textOutput.setColumns(80);
         textScroll = new JScrollPane(textOutput);
         c.fill = GridBagConstraints.BOTH;
         c.gridwidth = GridBagConstraints.REMAINDER;
@@ -134,23 +135,7 @@ public class ChessGUI{
         JPanel newGameButtons = new JPanel();
         newGameButtons.setLayout(new GridLayout(1,4,0,0));
         
-        JButton aiDuel = new JButton("AI (white) VS AI (black)");
-        aiDuel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	chessInterface.dispose();
-                ChessGUI gui=new ChessGUI(true,true);
-            }
-        });
-        newGameButtons.add(aiDuel);
         
-        JButton humanDuel = new JButton("Human (white) VS Human (black)");
-        humanDuel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	chessInterface.dispose();
-                ChessGUI gui=new ChessGUI(false,false);
-            }
-        });
-        newGameButtons.add(humanDuel);
         
         JButton humanVai = new JButton("Human (white) VS AI (black)");
         humanVai.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -170,6 +155,24 @@ public class ChessGUI{
         });
         newGameButtons.add(aiVhuman);
         
+        JButton humanDuel = new JButton("Human (white) VS Human (black)");
+        humanDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(false,false);
+            }
+        });
+        newGameButtons.add(humanDuel);
+        
+        JButton aiDuel = new JButton("AI (white) VS AI (black)");
+        aiDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(true,true);
+            }
+        });
+        newGameButtons.add(aiDuel);
+        
         c.gridx = 0;
 		c.gridy = 1;
         chessInterface.add(newGameButtons,c);
@@ -179,6 +182,28 @@ public class ChessGUI{
         chessInterface.setVisible(true);
         board=new int[8][8];
         board = copyArr(reset);
+        if(!WHITE_AI&&BLACK_AI){
+        	guiPrintLine("Welcome! You are currently playing as white against an AI playing as black.");
+        	guiPrintLine("Click on one of the buttons to start a new game with the specified players.");
+        	guiPrintLine("When it is your turn, click on one of your pieces to highlight legal moves.");
+        	guiPrintLine("Click on a highlighted square to move, or an unhighlighted square to reset.");
+        } else if(WHITE_AI&&!BLACK_AI){
+        	guiPrintLine("Welcome! You are currently playing as black against an AI playing as white.");
+        	guiPrintLine("Click on one of the buttons to start a new game with the specified players.");
+        	guiPrintLine("When it is your turn, click on one of your pieces to highlight legal moves.");
+        	guiPrintLine("Click on a highlighted square to move, or an unhighlighted square to reset.");
+        } else if(!WHITE_AI&&!BLACK_AI){
+        	guiPrintLine("Welcome! You are currently playing against someone else. White moves first.");
+        	guiPrintLine("Click on one of the buttons to start a new game with the specified players.");
+        	guiPrintLine("When it is your turn, click on one of your pieces to highlight legal moves.");
+        	guiPrintLine("Click on a highlighted square to move, or an unhighlighted square to reset.");
+        } else {
+        	guiPrintLine("Welcome! You are currently watching a chess match between two AIs.");
+        	guiPrintLine("This mode is highly experimental, and there may be serious issues.");
+        }
+        updatePieceDisplay();
+        textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
+        newGameButtons.paintImmediately(new Rectangle(new Point(0,0),newGameButtons.getSize()));
         updatePieceDisplay();
         textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
         newGameButtons.paintImmediately(new Rectangle(new Point(0,0),newGameButtons.getSize()));
