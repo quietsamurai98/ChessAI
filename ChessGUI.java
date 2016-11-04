@@ -11,11 +11,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
-public class ChessGUI {
+public class ChessGUI{
 	int depth = 3;
 	JFrame chessInterface;
     JPanel boardPanel;
     JLabel squaresPanels[][];
+    JTextArea textOutput;
+    JScrollPane textScroll;
     int boardSize=600;
     Color boardColorWhite = new Color(225,192,161);
     Color boardColorBlack = new Color(159,113,80);
@@ -63,18 +65,15 @@ public class ChessGUI {
     			pieceSprites[i][j] = new ImageIcon(rawPieceSprites[i][j].getScaledInstance(boardSize/8, boardSize/8,Image.SCALE_SMOOTH));
     		}
     	}
-    	JFrame chessInterface = new JFrame();
+    	chessInterface = new JFrame();
         chessInterface.setTitle("Chess Interface");
         
         chessInterface.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chessInterface.setFocusable(true);
         chessInterface.requestFocus();
-
+		chessInterface.setBackground(Color.black);
         boardPanel = new JPanel();
-        boardPanel.setMinimumSize(new Dimension(boardSize,boardSize));
-        boardPanel.setMaximumSize(new Dimension(boardSize,boardSize));
-        boardPanel.setPreferredSize(new Dimension(boardSize,boardSize));
-        boardPanel.setSize(boardSize,boardSize);
+        
         boardPanel.setLayout(new GridLayout(8,8,0,0));
         int squareSize=boardSize/8;
     	squaresPanels = new JLabel[8][8];
@@ -114,19 +113,80 @@ public class ChessGUI {
         	}
         	squareColor=!squareColor;
         }
-        chessInterface.add(boardPanel);
-        chessInterface.pack();
-        chessInterface.setResizable(false);
-        chessInterface.setVisible(true);
         
+        chessInterface.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.NONE;
+		c.gridx = 0;
+		c.gridy = 0;
+        chessInterface.add(boardPanel,c);
+        
+        textOutput = new JTextArea(1,1);
+        //textOutput.setRows(boardSize/textOutput.getScrollableUnitIncrement(null,0,SwingConstants.HORIZONTAL)-15);
+        textOutput.setColumns(32);
+        textScroll = new JScrollPane(textOutput);
+        c.fill = GridBagConstraints.BOTH;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+		c.gridx = 1;
+		c.gridy = 0;
+        chessInterface.add(textScroll,c);
+        
+        JPanel newGameButtons = new JPanel();
+        newGameButtons.setLayout(new GridLayout(1,4,0,0));
+        
+        JButton aiDuel = new JButton("AI (white) VS AI (black)");
+        aiDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(true,true);
+            }
+        });
+        newGameButtons.add(aiDuel);
+        
+        JButton humanDuel = new JButton("Human (white) VS Human (black)");
+        humanDuel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(false,false);
+            }
+        });
+        newGameButtons.add(humanDuel);
+        
+        JButton humanVai = new JButton("Human (white) VS AI (black)");
+        humanVai.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(false,true);
+            }
+        });
+        newGameButtons.add(humanVai);
+        
+        JButton aiVhuman = new JButton("AI (white) VS human (black)");
+        aiVhuman.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	chessInterface.dispose();
+                ChessGUI gui=new ChessGUI(true,false);
+            }
+        });
+        newGameButtons.add(aiVhuman);
+        
+        c.gridx = 0;
+		c.gridy = 1;
+        chessInterface.add(newGameButtons,c);
+        
+		chessInterface.setResizable(false);
+        chessInterface.pack();
+        chessInterface.setVisible(true);
+        board=new int[8][8];
+        board = copyArr(reset);
+        updatePieceDisplay();
+        textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
+        newGameButtons.paintImmediately(new Rectangle(new Point(0,0),newGameButtons.getSize()));
         if(AI_VS_AI){
         	loopAI();
         } else if (WHITE_AI){
         	currentSide=2;
         	gameOver=false;
-        	board=new int[8][8];
-       		board = copyArr(reset);
-        	updatePieceDisplay();
         	highlightMoves(new int[8][8]);
         	moving = false;
         	lastI=0;
@@ -154,8 +214,6 @@ public class ChessGUI {
 			}
         } else {
         	gameOver=false;
-        	board=new int[8][8];
-       		board = copyArr(reset);
         	updatePieceDisplay();
         	highlightMoves(new int[8][8]);
         	moving = false;
@@ -179,14 +237,14 @@ public class ChessGUI {
 			    	} else {
 			    		moving = false;
 			    		if(legalMoves(lastI,lastJ,board,"")[i][j]!=0){
-			    			System.out.println("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
+			    			guiPrintLine("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
 			    			board[i][j] = board[lastI][lastJ];
 			    			board[lastI][lastJ]=0;
 			    			if(board[i][j]==11&&i==0){
-					    		System.out.println("Promotion!");
+					    		guiPrintLine("Promotion!");
 					    		board[i][j]=15;
 					    	}else if(board[i][j]==21&&i==7){
-					    		System.out.println("Promotion!");
+					    		guiPrintLine("Promotion!");
 					    		board[i][j]=25;
 					    	}
 				    		highlightMoves(new int[8][8]);
@@ -198,24 +256,24 @@ public class ChessGUI {
 				    			
 				    			if(coords[3]==-1){
 				    				if(WHITE_AI){
-				    					System.out.println("Black wins!");
+				    					guiPrintLine("Black wins!");
 				    				}
 				    				if(BLACK_AI){
-				    					System.out.println("White wins!");
+				    					guiPrintLine("White wins!");
 				    				}
 									checkmate=true;
 								} else if(coords[3]==-2){
-									System.out.println("Stalemate!");
+									guiPrintLine("Stalemate!");
 									checkmate=true;
 								} else if(coords[3]>=0){
-									System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+									guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
 					    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
 					    			board[coords[0]][coords[1]]=0;
 					    			if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-							    		System.out.println("Promotion!");
+							    		guiPrintLine("Promotion!");
 							    		board[coords[2]][coords[3]]=15;
 							    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-							    		System.out.println("Promotion!");
+							    		guiPrintLine("Promotion!");
 							    		board[coords[2]][coords[3]]=25;
 							    	}
 								}
@@ -232,8 +290,6 @@ public class ChessGUI {
     
     private void loopAI(){
     	gameOver=false;
-        board=new int[8][8];
-        board = copyArr(reset);
         updatePieceDisplay();
         highlightMoves(new int[8][8]);
         moving = false;
@@ -243,20 +299,20 @@ public class ChessGUI {
         while(!checkmate){
 			int[] coords = playerAI.aiMiniMax(board,1,depth);
 			if(coords[3]==-1){
-				System.out.println("Black wins!");
+				guiPrintLine("Black wins!");
 				checkmate=true;
 			} else if(coords[3]==-2){
 				checkmate=true;
-				System.out.println("Stalemate! White cannot move!");
+				guiPrintLine("Stalemate! White cannot move!");
 			} else {
-				System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+				guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
 				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
 				board[coords[0]][coords[1]]=0;
 				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-		    		System.out.println("Promotion!");
+		    		guiPrintLine("Promotion!");
 		    		board[coords[2]][coords[3]]=15;
 		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-		    		System.out.println("Promotion!");
+		    		guiPrintLine("Promotion!");
 		    		board[coords[2]][coords[3]]=25;
 		    	}
 				updatePieceDisplay();
@@ -265,19 +321,19 @@ public class ChessGUI {
 				coords = playerAI.aiMiniMax(board,2,depth);
 				if(coords[3]==-1){
 					checkmate=true;
-					System.out.println("White wins!");
+					guiPrintLine("White wins!");
 				} else if(coords[3]==-2){
 					checkmate=true;
-					System.out.println("Stalemate! Black cannot move!");
+					guiPrintLine("Stalemate! Black cannot move!");
 				} else {
-					System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+					guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
 					board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
 					board[coords[0]][coords[1]]=0;
 					if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-			    		System.out.println("Promotion!");
+			    		guiPrintLine("Promotion!");
 			    		board[coords[2]][coords[3]]=15;
 			    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-			    		System.out.println("Promotion!");
+			    		guiPrintLine("Promotion!");
 			    		board[coords[2]][coords[3]]=25;
 			    	}
 					updatePieceDisplay();
@@ -345,10 +401,11 @@ public class ChessGUI {
         		} else {
         			squaresPanels[i][j].setIcon(null);
         		}
+        		squaresPanels[i][j].paintImmediately(0,0,boardSize/8+1,boardSize/8+1);
         	}
         }
     }
-    public int[][] legalMoves(int r, int c, int[][] tempArr){
+    private int[][] legalMoves(int r, int c, int[][] tempArr){
     	int[][] inArr = new int[tempArr.length][tempArr[0].length];
     	for(int i=0; i<tempArr.length; i++){
         	for (int j=0; j<tempArr[0].length; j++){
@@ -923,5 +980,10 @@ public class ChessGUI {
     	}else if(boardArr[i2][j2]==21&&i2==7){
     		boardArr[i2][j2]=25;
     	}
+    }
+    private void guiPrintLine(String str){
+    	System.out.println(str);
+    	textOutput.append(str+"\n");
+    	textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
     }
 }
