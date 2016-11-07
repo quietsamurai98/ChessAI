@@ -41,6 +41,7 @@ public class ChessGUI{
     JLabel squaresPanels[][];
     JTextArea textOutput;
     JScrollPane textScroll;
+    JSpinner depthSpinner;
     int boardSize=600;
     Color boardColorWhite = new Color(225,192,161);
     Color boardColorBlack = new Color(159,113,80);
@@ -224,10 +225,10 @@ public class ChessGUI{
         JLabel depthLabel = new JLabel("AI Search Depth:");
         
         SpinnerModel depthModel = new SpinnerNumberModel(3, 1, 10000, 1);
-        JSpinner depthSpinner = new JSpinner(depthModel);
+        depthSpinner = new JSpinner(depthModel);
         depthSpinner.addChangeListener(new ChangeListener(){
         	public void stateChanged(ChangeEvent e){
-            	setDepth((Integer)depthSpinner.getValue());
+            	setDepth();
             }
       	});
         
@@ -285,8 +286,11 @@ public class ChessGUI{
     		}
     	}
     }
-    private void setDepth(int in){
-    	depth=in;
+    private void setDepth(){
+    	depth=(Integer)depthSpinner.getValue();
+    }
+    private void setDepth(int num){
+    	depth=num;
     }
     private void clickedOn(int i, int j){
     	if(!AI_VS_AI){
