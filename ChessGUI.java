@@ -1,9 +1,30 @@
-/**
+/*
  * @(#)ChessGUI.java
  *
  *
  * @author 
  * @version 1.00 2016/11/2
+ */
+
+
+
+/*
+ * TODO (External)
+ *	CRITICAL - Game breaking issues, and bugs that cause crashes, memory leaks, unintended CPU hogging, etc.
+ *		Implement castling and en passanant, so AI can be pitted against other chess engines
+ *	
+ *	HIGH PRIORITY - Missing features that the average user would expect, and non game-breaking bugs
+ *		Add a text notification when the user makes a move that ends the game.
+ *			Currently, if the AI ends the game, it will print it out
+ *		Change move text output format to algebraic notation
+ *			Currently, output format is "Piece on (r,c) moves to (r',c')"
+ *
+ *TODO (Internal)
+ *	Refactor the code, aiming to improve the following, in order of importance:
+ *		Readability
+ *		Maintainability
+ *		Code complexity
+ *		
  */
 
 import javax.swing.*;
@@ -40,27 +61,58 @@ public class ChessGUI{
     int currentSide;
     int[] coords = new int[4];
     static final int reset[][] = {{24,22,23,25,26,23,22,24},{21,21,21,21,21,21,21,21},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{11,11,11,11,11,11,11,11},{14,12,13,15,16,13,12,14}};
-    
     public static void main(String[] args) {
         ChessGUI gui=new ChessGUI(false,true);
     }
-    
     public ChessGUI(boolean whiteIsAI, boolean blackIsAI) {
     	currentSide=3;
     	WHITE_AI=whiteIsAI;
     	BLACK_AI=blackIsAI;
     	AI_VS_AI=whiteIsAI&&blackIsAI;
-    	try{
-			sprites=ImageIO.read(this.getClass().getResource("sprites.png"));
-		    
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
-    	for(int i=0;i<2;i++){
-    		for(int j=0;j<7;j++){
-    			pieceSprites[i][j] = new ImageIcon(sprites.getSubimage(i*100,j*100,100,100).getScaledInstance(boardSize/8, boardSize/8,Image.SCALE_SMOOTH));
-    		}
-    	}
+    	loadImages();
+    	makeGUI();
+        if(AI_VS_AI){
+        	loopAI();
+        } else if (WHITE_AI){
+        	currentSide=2;
+        	gameOver=false;
+        	highlightMoves(new int[8][8]);
+        	moving = false;
+        	lastI=0;
+        	lastJ=0;
+        	checkmate=false;
+        	int[] coords = playerAI.aiMiniMax(board,1,depth);
+			if(coords[3]==-1){
+				System.out.println("Black wins!");
+				checkmate=true;
+			} else if(coords[3]==-2){
+				checkmate=true;
+				System.out.println("Stalemate! White cannot move!");
+			} else {
+				System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
+				board[coords[0]][coords[1]]=0;
+				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
+		    		System.out.println("Promotion!");
+		    		board[coords[2]][coords[3]]=15;
+		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
+		    		System.out.println("Promotion!");
+		    		board[coords[2]][coords[3]]=25;
+		    	}
+				updatePieceDisplay();
+			}
+        } else {
+        	gameOver=false;
+        	updatePieceDisplay();
+        	highlightMoves(new int[8][8]);
+        	moving = false;
+        	lastI=0;
+        	lastJ=0;
+        	checkmate=false;
+        	currentSide=1;
+        }
+    }
+    private void makeGUI(){
     	chessInterface = new JFrame();
         chessInterface.setTitle("Chess Interface");
         
@@ -160,15 +212,6 @@ public class ChessGUI{
         });
         newGameButtons.add(humanDuel);
         
-//        JButton aiDuel = new JButton("AI (white) VS AI (black)");
-//        aiDuel.addMouseListener(new java.awt.event.MouseAdapter() {
-//            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//            	chessInterface.dispose();
-//                ChessGUI gui=new ChessGUI(true,true);
-//            }
-//        });
-//        newGameButtons.add(aiDuel);
-        
         JButton aiMove = new JButton("Make my next move using the AI");
         aiMove.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -228,51 +271,23 @@ public class ChessGUI{
         updatePieceDisplay();
         textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
         newGameButtons.paintImmediately(new Rectangle(new Point(0,0),newGameButtons.getSize()));
-        if(AI_VS_AI){
-        	loopAI();
-        } else if (WHITE_AI){
-        	currentSide=2;
-        	gameOver=false;
-        	highlightMoves(new int[8][8]);
-        	moving = false;
-        	lastI=0;
-        	lastJ=0;
-        	checkmate=false;
-        	int[] coords = playerAI.aiMiniMax(board,1,depth);
-			if(coords[3]==-1){
-				System.out.println("Black wins!");
-				checkmate=true;
-			} else if(coords[3]==-2){
-				checkmate=true;
-				System.out.println("Stalemate! White cannot move!");
-			} else {
-				System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-				board[coords[0]][coords[1]]=0;
-				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-		    		System.out.println("Promotion!");
-		    		board[coords[2]][coords[3]]=15;
-		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-		    		System.out.println("Promotion!");
-		    		board[coords[2]][coords[3]]=25;
-		    	}
-				updatePieceDisplay();
-			}
-        } else {
-        	gameOver=false;
-        	updatePieceDisplay();
-        	highlightMoves(new int[8][8]);
-        	moving = false;
-        	lastI=0;
-        	lastJ=0;
-        	checkmate=false;
-        	currentSide=1;
-        }
+    }
+    private void loadImages(){
+    	try{
+			sprites=ImageIO.read(this.getClass().getResource("sprites.png"));
+		    
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    	for(int i=0;i<2;i++){
+    		for(int j=0;j<7;j++){
+    			pieceSprites[i][j] = new ImageIcon(sprites.getSubimage(i*100,j*100,100,100).getScaledInstance(boardSize/8, boardSize/8,Image.SCALE_SMOOTH));
+    		}
+    	}
     }
     private void setDepth(int in){
     	depth=in;
     }
-    
     private void clickedOn(int i, int j){
     	if(!AI_VS_AI){
     			if((moving||(board[i][j]/10==currentSide||board[i][j]/10==0))&&!checkmate){
@@ -336,7 +351,6 @@ public class ChessGUI{
 		    	}
     	}
     }
-    
     private void aiMoveClick(){
     	if(!checkmate){
 			highlightMoves(new int[8][8]);
@@ -398,7 +412,6 @@ public class ChessGUI{
 			}
     	}
     }
-    
     private void loopAI(){
     	gameOver=false;
         updatePieceDisplay();
@@ -457,7 +470,6 @@ public class ChessGUI{
 			}
         }
     }
-    
     private int[][] copyArr(int[][] arrIn){
     	int[][] arrOut= new int[arrIn.length][arrIn[0].length];
     	for(int i=0; i<arrIn.length; i++){
