@@ -48,7 +48,7 @@ public class ChessGUI{
     Color boardColorWhiteHighlight = new Color(213,198,70);
     Color boardColorBlackHighlight = new Color(184,164,35);
     BufferedImage sprites;
-    ImageIcon pieceSprites[][] = new ImageIcon[2][7];
+    ImageIcon pieceSprites[][] = new ImageIcon[2][10];
     ChessAI playerAI = new ChessAI();
     static boolean WHITE_AI;
     static boolean BLACK_AI;
@@ -61,7 +61,8 @@ public class ChessGUI{
     boolean gameOver;
     int currentSide;
     int[] coords = new int[4];
-    static final int reset[][] = {{24,22,23,25,26,23,22,24},{21,21,21,21,21,21,21,21},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{11,11,11,11,11,11,11,11},{14,12,13,15,16,13,12,14}};
+//    static final int reset[][] = {{24,22,23,25,29,23,22,24},{21,21,21,21,21,21,21,21},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{11,11,11,11,11,11,11,11},{18,12,13,15,19,13,12,18}};
+    static final int reset[][] = {{28,00,00,00,29,00,00,28},{21,21,21,21,21,0,21,21},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{11,11,11,11,11,00,11,11},{18,00,00,00,11,19,11,18}};
     public static void main(String[] args) {
         ChessGUI gui=new ChessGUI(false,true);
     }
@@ -99,6 +100,16 @@ public class ChessGUI{
 		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
 		    		System.out.println("Promotion!");
 		    		board[coords[2]][coords[3]]=25;
+		    	}
+		    	if(board[coords[2]][coords[3]]==19){
+		    		board[coords[2]][coords[3]]=16;
+		    	}else if(board[coords[2]][coords[3]]==29){
+		    		board[coords[2]][coords[3]]=26;
+		    	}
+		    	if(board[coords[2]][coords[3]]==18){
+		    		board[coords[2]][coords[3]]=14;
+		    	}else if(board[coords[2]][coords[3]]==28){
+		    		board[coords[2]][coords[3]]=24;
 		    	}
 				updatePieceDisplay();
 			}
@@ -285,6 +296,12 @@ public class ChessGUI{
     			pieceSprites[i][j] = new ImageIcon(sprites.getSubimage(i*100,j*100,100,100).getScaledInstance(boardSize/8, boardSize/8,Image.SCALE_SMOOTH));
     		}
     	}
+    	pieceSprites[0][7]=pieceSprites[0][1];
+    	pieceSprites[1][7]=pieceSprites[1][1];
+    	pieceSprites[0][8]=pieceSprites[0][4];
+    	pieceSprites[1][8]=pieceSprites[1][4];
+    	pieceSprites[0][9]=pieceSprites[0][6];
+    	pieceSprites[1][9]=pieceSprites[1][6];
     }
     private void setDepth(){
     	depth=(Integer)depthSpinner.getValue();
@@ -306,16 +323,8 @@ public class ChessGUI{
 			    		moving = false;
 			    		if(legalMoves(lastI,lastJ,board,"")[i][j]!=0){
 			    			guiPrintLine("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
-			    			board[i][j] = board[lastI][lastJ];
-			    			board[lastI][lastJ]=0;
-			    			if(board[i][j]==11&&i==0){
-					    		guiPrintLine("Promotion!");
-					    		board[i][j]=15;
-					    	}else if(board[i][j]==21&&i==7){
-					    		guiPrintLine("Promotion!");
-					    		board[i][j]=25;
-					    	}
-				    		highlightMoves(new int[8][8]);
+			    			makeMove(lastI,lastJ,i,j,board);
+						    highlightMoves(new int[8][8]);
 				    		updatePieceDisplay();
 				    		currentSide=currentSide%2+1;
 				    		
@@ -335,15 +344,7 @@ public class ChessGUI{
 									checkmate=true;
 								} else if(coords[3]>=0){
 									guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					    			board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-					    			board[coords[0]][coords[1]]=0;
-					    			if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-							    		guiPrintLine("Promotion!");
-							    		board[coords[2]][coords[3]]=15;
-							    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-							    		guiPrintLine("Promotion!");
-							    		board[coords[2]][coords[3]]=25;
-							    	}
+					    			makeMove(coords[0],coords[1],coords[2],coords[3],board);
 								}
 					    		updatePieceDisplay();
 					    		currentSide=currentSide%2+1;
@@ -372,15 +373,7 @@ public class ChessGUI{
 				checkmate=true;
 			} else if(coords[3]>=0){
 				guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-				board[coords[0]][coords[1]]=0;
-				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-		    		guiPrintLine("Promotion!");
-		    		board[coords[2]][coords[3]]=15;
-		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-		    		guiPrintLine("Promotion!");
-		    		board[coords[2]][coords[3]]=25;
-		    	}
+				makeMove(coords[0],coords[1],coords[2],coords[3],board);
 			}
 			updatePieceDisplay();
 			currentSide=currentSide%2+1;
@@ -401,15 +394,7 @@ public class ChessGUI{
 					checkmate=true;
 				} else if(coords[3]>=0){
 					guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-					board[coords[0]][coords[1]]=0;
-					if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-			    		guiPrintLine("Promotion!");
-			    		board[coords[2]][coords[3]]=15;
-			    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-			    		guiPrintLine("Promotion!");
-			    		board[coords[2]][coords[3]]=25;
-			    	}
+					makeMove(coords[0],coords[1],coords[2],coords[3],board);
 				}
 				updatePieceDisplay();
 				currentSide=currentSide%2+1;
@@ -436,15 +421,7 @@ public class ChessGUI{
 				guiPrintLine("Stalemate! White cannot move!");
 			} else {
 				guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-				board[coords[0]][coords[1]]=0;
-				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-		    		guiPrintLine("Promotion!");
-		    		board[coords[2]][coords[3]]=15;
-		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-		    		guiPrintLine("Promotion!");
-		    		board[coords[2]][coords[3]]=25;
-		    	}
+				makeMove(coords[0],coords[1],coords[2],coords[3],board);
 				updatePieceDisplay();
 			}
 			if(!checkmate){
@@ -460,15 +437,7 @@ public class ChessGUI{
 					guiPrintLine("Stalemate! Black cannot move!");
 				} else {
 					guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-					board[coords[0]][coords[1]]=0;
-					if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-			    		guiPrintLine("Promotion!");
-			    		board[coords[2]][coords[3]]=15;
-			    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-			    		guiPrintLine("Promotion!");
-			    		board[coords[2]][coords[3]]=25;
-			    	}
+					makeMove(coords[0],coords[1],coords[2],coords[3],board);
 					updatePieceDisplay();
 				}
 			}
@@ -487,13 +456,13 @@ public class ChessGUI{
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
     			if((i%2+j%2)%2==0){
-    				if(legals[i][j]==1){
+    				if(legals[i][j]>=1){
     					squaresPanels[i][j].setBackground(boardColorWhiteHighlight);
     				} else {
     					squaresPanels[i][j].setBackground(boardColorWhite);
     				}
     			} else {
-    				if(legals[i][j]==1){
+    				if(legals[i][j]>=1){
     					squaresPanels[i][j].setBackground(boardColorBlackHighlight);
     				} else {
     					squaresPanels[i][j].setBackground(boardColorBlack);
@@ -506,13 +475,13 @@ public class ChessGUI{
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
     			if((i%2+j%2)%2==0){
-    				if(legals[i][j]==1){
+    				if(legals[i][j]>=1){
     					squaresPanels[i][j].setBackground(boardColorWhiteHighlight);
     				} else {
     					squaresPanels[i][j].setBackground(boardColorWhite);
     				}
     			} else {
-    				if(legals[i][j]==1){
+    				if(legals[i][j]>=1){
     					squaresPanels[i][j].setBackground(boardColorBlackHighlight);
     				} else {
     					squaresPanels[i][j].setBackground(boardColorBlack);
@@ -553,7 +522,7 @@ public class ChessGUI{
         		if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
         		
         			//Pawn
-        			if (piece==1){ 
+        			if (piece==1||piece==7){ 
         				if(inArr[i][j]==0 && c==j && ((side==2&&r+1==i)||(side==1&&r-1==i))){ //pawn moves forward by one space
         					isLegal=true;
         				}
@@ -573,7 +542,7 @@ public class ChessGUI{
         			}
         			
         			//King
-        			if (piece==6){ 
+        			if (piece==6||piece==9){ 
         				if((Math.abs(i-r)<=1&&Math.abs(j-c)<=1)&&(i!=r||j!=c)){
         					isLegal=true;
         				}
@@ -641,7 +610,7 @@ public class ChessGUI{
 		}
 		
 		//Rook
-		if (piece==4){ 
+		if (piece==4||piece==8){ 
 			for(int i=r+1; i<8; i++){
 				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
 					if(inArr[i][c]==0){
@@ -814,7 +783,7 @@ public class ChessGUI{
         		if (side!=inArr[i][j]/10){ //Not occupied by your own pieces
         		
         			//Pawn
-        			if (piece==1){ 
+        			if (piece==1||piece==7){ 
         				if(inArr[i][j]==0 && c==j && ((side==2&&r+1==i)||(side==1&&r-1==i))){ //pawn moves forward by one space
         					isLegal=true;
         				}
@@ -834,7 +803,7 @@ public class ChessGUI{
         			}
         			
         			//King
-        			if (piece==6){ 
+        			if (piece==6||piece==9){ 
         				if((Math.abs(i-r)<=1&&Math.abs(j-c)<=1)&&(i!=r||j!=c)){
         					isLegal=true;
         				}
@@ -902,7 +871,7 @@ public class ChessGUI{
 		}
 		
 		//Rook
-		if (piece==4){ 
+		if (piece==4||piece==8){ 
 			for(int i=r+1; i<8; i++){
 				if (side!=inArr[i][c]/10){ //Not occupied by your own pieces
 					if(inArr[i][c]==0){
@@ -1056,17 +1025,78 @@ public class ChessGUI{
 				j--;
 			}
 		}
+		//WHITE CASTLE KINGSIDE
+		if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
+			int[][] tempArrMove = copyArr(inArr);
+			makeMove(7,4,7,5,tempArrMove);
+			if (!kingChecked(tempArrMove,1)){
+				int[][] tempArrMove2 = copyArr(inArr);
+				makeMove(7,4,7,6,tempArrMove2);
+				if (!kingChecked(tempArrMove2,1)){
+					out[7][6]=2;
+				}
+			}
+		}
+		
+		//BLACK CASTLE KINGSIDE
+		if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
+			int[][] tempArrMove = copyArr(inArr);
+			makeMove(0,4,0,5,tempArrMove);
+			if (!kingChecked(tempArrMove,2)){
+				int[][] tempArrMove2 = copyArr(inArr);
+				makeMove(0,4,0,6,tempArrMove2);
+				if (!kingChecked(tempArrMove2,2)){
+					out[0][6]=3;
+				}
+			}
+		}
+		
+		//WHITE CASTLE QUEENSIDE
+		if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
+			int[][] tempArrMove = copyArr(inArr);
+			makeMove(7,4,7,3,tempArrMove);
+			if (!kingChecked(tempArrMove,1)){
+				int[][] tempArrMove2 = copyArr(inArr);
+				makeMove(7,4,7,2,tempArrMove2);
+				if (!kingChecked(tempArrMove2,1)){
+					int[][] tempArrMove3 = copyArr(inArr);
+					makeMove(7,4,7,1,tempArrMove2);
+					if (!kingChecked(tempArrMove2,1)){
+						out[7][2]=4;
+					}
+				}
+			}
+		}
+		
+		//BLACK CASTLE QUEENSIDE
+		if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
+			int[][] tempArrMove = copyArr(inArr);
+			makeMove(0,4,0,3,tempArrMove);
+			if (!kingChecked(tempArrMove,2)){
+				int[][] tempArrMove2 = copyArr(inArr);
+				makeMove(0,4,0,2,tempArrMove2);
+				if (!kingChecked(tempArrMove2,2)){
+					int[][] tempArrMove3 = copyArr(inArr);
+					makeMove(0,4,0,1,tempArrMove2);
+					if (!kingChecked(tempArrMove2,2)){
+						out[0][2]=5;
+					}
+				}
+			}
+		}
+		
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
         		if(out[i][j]==1){
-        			int[][] tempArrMove = copyArr(board);
+        			int[][] tempArrMove = copyArr(inArr);
         			makeMove(r,c,i,j,tempArrMove);
-        			if (kingChecked(tempArrMove,(board[r][c]/10))){
+        			if (kingChecked(tempArrMove,(inArr[r][c]/10))){
         				out[i][j]=0;
         			}
         		}
         	}
     	}
+    	
     	return out;
     }
     private boolean kingChecked(int[][] PARAMETER_ARRAY, int side){
@@ -1079,7 +1109,7 @@ public class ChessGUI{
     		for(int c=0; c<8; c++){
     			if(inBoard[r][c]/10==otherSide){
     				addArrayElements(captureBoard,legalMoves(r,c,inBoard),"");
-    			} else if(inBoard[r][c]%10==6){
+    			} else if(inBoard[r][c]%10==6||inBoard[r][c]%10==9){
     				kingR=r;
     				kingC=c;
     			}
@@ -1111,6 +1141,30 @@ public class ChessGUI{
     		boardArr[i2][j2]=15;
     	}else if(boardArr[i2][j2]==21&&i2==7){
     		boardArr[i2][j2]=25;
+    	}
+    	if(boardArr[i2][j2]==19){
+    		boardArr[i2][j2]=16;
+    		if(j2==6){
+    			boardArr[7][5]=14;
+    			boardArr[7][7]=0;
+    		} else if(j2==2){
+    			boardArr[7][3]=14;
+    			boardArr[7][0]=0;
+    		}
+    	}else if(boardArr[i2][j2]==29){
+    		boardArr[i2][j2]=26;
+    		if(j2==6){
+    			boardArr[0][5]=24;
+    			boardArr[0][7]=0;
+    		} else if(j2==2){
+    			boardArr[0][3]=24;
+    			boardArr[0][0]=0;
+    		}
+    	}
+    	if(boardArr[i2][j2]==18){
+    		boardArr[i2][j2]=14;
+    	}else if(boardArr[i2][j2]==28){
+    		boardArr[i2][j2]=24;
     	}
     }
     private void guiPrintLine(String str){
