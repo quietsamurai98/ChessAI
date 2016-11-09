@@ -427,7 +427,7 @@ public class ChessAI {
 				j--;
 			}
 		}
-    	
+    	out[7][5]=0;
     	return out;
     }
     private int[][] legalMoves(int r, int c, int[][] tempArr, String CheckForCheck){
@@ -691,12 +691,14 @@ public class ChessAI {
 		//WHITE CASTLE KINGSIDE
 		if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
 			int[][] tempArrMove = copyArr(inArr);
-			makeMove(7,4,7,5,tempArrMove);
 			if (!kingChecked(tempArrMove,1)){
-				int[][] tempArrMove2 = copyArr(inArr);
-				makeMove(7,4,7,6,tempArrMove2);
-				if (!kingChecked(tempArrMove2,1)){
-					out[7][6]=2;
+				makeMove(7,4,7,5,tempArrMove);
+				if (!kingChecked(tempArrMove,1)){
+					int[][] tempArrMove2 = copyArr(inArr);
+					makeMove(7,4,7,6,tempArrMove2);
+					if (!kingChecked(tempArrMove2,1)){
+						out[7][6]=2;
+					}
 				}
 			}
 		}
@@ -704,12 +706,14 @@ public class ChessAI {
 		//BLACK CASTLE KINGSIDE
 		if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
 			int[][] tempArrMove = copyArr(inArr);
-			makeMove(0,4,0,5,tempArrMove);
 			if (!kingChecked(tempArrMove,2)){
-				int[][] tempArrMove2 = copyArr(inArr);
-				makeMove(0,4,0,6,tempArrMove2);
-				if (!kingChecked(tempArrMove2,2)){
-					out[0][6]=3;
+				makeMove(0,4,0,5,tempArrMove);
+				if (!kingChecked(tempArrMove,2)){
+					int[][] tempArrMove2 = copyArr(inArr);
+					makeMove(0,4,0,6,tempArrMove2);
+					if (!kingChecked(tempArrMove2,2)){
+						out[0][6]=3;
+					}
 				}
 			}
 		}
@@ -717,15 +721,17 @@ public class ChessAI {
 		//WHITE CASTLE QUEENSIDE
 		if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
 			int[][] tempArrMove = copyArr(inArr);
-			makeMove(7,4,7,3,tempArrMove);
 			if (!kingChecked(tempArrMove,1)){
-				int[][] tempArrMove2 = copyArr(inArr);
-				makeMove(7,4,7,2,tempArrMove2);
-				if (!kingChecked(tempArrMove2,1)){
-					int[][] tempArrMove3 = copyArr(inArr);
-					makeMove(7,4,7,1,tempArrMove2);
+				makeMove(7,4,7,3,tempArrMove);
+				if (!kingChecked(tempArrMove,1)){
+					int[][] tempArrMove2 = copyArr(inArr);
+					makeMove(7,4,7,2,tempArrMove2);
 					if (!kingChecked(tempArrMove2,1)){
-						out[7][2]=4;
+						int[][] tempArrMove3 = copyArr(inArr);
+						makeMove(7,4,7,1,tempArrMove2);
+						if (!kingChecked(tempArrMove2,1)){
+							out[7][2]=4;
+						}
 					}
 				}
 			}
@@ -734,15 +740,17 @@ public class ChessAI {
 		//BLACK CASTLE QUEENSIDE
 		if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
 			int[][] tempArrMove = copyArr(inArr);
-			makeMove(0,4,0,3,tempArrMove);
 			if (!kingChecked(tempArrMove,2)){
-				int[][] tempArrMove2 = copyArr(inArr);
-				makeMove(0,4,0,2,tempArrMove2);
-				if (!kingChecked(tempArrMove2,2)){
-					int[][] tempArrMove3 = copyArr(inArr);
-					makeMove(0,4,0,1,tempArrMove2);
+				makeMove(0,4,0,3,tempArrMove);
+				if (!kingChecked(tempArrMove,2)){
+					int[][] tempArrMove2 = copyArr(inArr);
+					makeMove(0,4,0,2,tempArrMove2);
 					if (!kingChecked(tempArrMove2,2)){
-						out[0][2]=5;
+						int[][] tempArrMove3 = copyArr(inArr);
+						makeMove(0,4,0,1,tempArrMove2);
+						if (!kingChecked(tempArrMove2,2)){
+							out[0][2]=5;
+						}
 					}
 				}
 			}
@@ -759,7 +767,7 @@ public class ChessAI {
         		}
         	}
     	}
-    	
+    	out[7][5]=0;
     	return out;
     }
     private void makeMove(int[] moveArr, int[][] boardArr){
