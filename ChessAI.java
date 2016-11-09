@@ -427,7 +427,23 @@ public class ChessAI {
 				j--;
 			}
 		}
-    	out[7][5]=0;
+		//EN PASSANT
+		if(piece==1){
+			if(side==1&&r==3){
+				if (c>0&&inArr[3][c-1]==27){
+					out[2][c-1]=1;
+				} else if (c<7&&inArr[3][c+1]==27){
+					out[2][c+1]=1;
+				}
+			}
+			if(side==2&&r==4){
+				if (c>0&&inArr[4][c-1]==17){
+					out[5][c-1]=1;
+				} else if (c<7&&inArr[4][c+1]==17){
+					out[5][c+1]=1;
+				}
+			}
+		}
     	return out;
     }
     private int[][] legalMoves(int r, int c, int[][] tempArr, String CheckForCheck){
@@ -755,7 +771,23 @@ public class ChessAI {
 				}
 			}
 		}
-		
+		//EN PASSANT
+		if(piece==1){
+			if(side==1&&r==3){
+				if (c>0&&inArr[3][c-1]==27){
+					out[2][c-1]=1;
+				} else if (c<7&&inArr[3][c+1]==27){
+					out[2][c+1]=1;
+				}
+			}
+			if(side==2&&r==4){
+				if (c>0&&inArr[4][c-1]==17){
+					out[5][c-1]=1;
+				} else if (c<7&&inArr[4][c+1]==17){
+					out[5][c+1]=1;
+				}
+			}
+		}
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
         		if(out[i][j]==1){
@@ -767,7 +799,6 @@ public class ChessAI {
         		}
         	}
     	}
-    	out[7][5]=0;
     	return out;
     }
     private void makeMove(int[] moveArr, int[][] boardArr){
@@ -802,6 +833,26 @@ public class ChessAI {
     	}else if(boardArr[moveArr[2]][moveArr[3]]==28){
     		boardArr[moveArr[2]][moveArr[3]]=24;
     	}
+    	int side=boardArr[moveArr[2]][moveArr[3]]/10;
+    	for(int a=0; a<8; a++){
+    		for(int b=0; b<8; b++){
+    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=side*10+1;
+    			}
+    		}
+    	}
+    	
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[0]==6&&moveArr[2]==4){
+    		boardArr[moveArr[2]][moveArr[3]]=17;
+    	} else if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[0]==1&&moveArr[2]==5){
+    		boardArr[moveArr[2]][moveArr[3]]=17;
+    	}
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
+    		boardArr[moveArr[2]+1][moveArr[3]]=0;
+    	}
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
+    		boardArr[moveArr[2]-1][moveArr[3]]=0;
+    	}
     }
     private void makeMove(int i1 ,int j1 ,int i2 ,int j2 , int[][] boardArr){
     	boardArr[i2][j2] = boardArr[i1][j1];
@@ -834,6 +885,26 @@ public class ChessAI {
     		boardArr[i2][j2]=14;
     	}else if(boardArr[i2][j2]==28){
     		boardArr[i2][j2]=24;
+    	}
+    	int side=boardArr[i2][j2]/10;
+    	for(int a=0; a<8; a++){
+    		for(int b=0; b<8; b++){
+    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=side*10+1;
+    			}
+    		}
+    	}
+    	
+    	if(boardArr[i2][j2]==11&&i1==6&&i2==4){
+    		boardArr[i2][j2]=17;
+    	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
+    		boardArr[i2][j2]=17;
+    	}
+    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    		boardArr[i2+1][j2]=0;
+    	}
+    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    		boardArr[i2-1][j2]=0;
     	}
     }
     private int[][] multiplyArrayElements(int[][] foo, int[][] bar, String bat){

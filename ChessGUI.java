@@ -780,6 +780,23 @@ public class ChessGUI{
 				j--;
 			}
 		}
+		//EN PASSANT
+		if(piece==1){
+			if(side==1&&r==3){
+				if (c>0&&inArr[3][c-1]==27){
+					out[2][c-1]=1;
+				} else if (c<7&&inArr[3][c+1]==27){
+					out[2][c+1]=1;
+				}
+			}
+			if(side==2&&r==4){
+				if (c>0&&inArr[4][c-1]==17){
+					out[5][c-1]=1;
+				} else if (c<7&&inArr[4][c+1]==17){
+					out[5][c+1]=1;
+				}
+			}
+		}
     	return out;
     }
     private int[][] legalMoves(int r, int c, int[][] tempArr, String CheckForCheck){
@@ -1107,7 +1124,23 @@ public class ChessGUI{
 				}
 			}
 		}
-		
+		//EN PASSANT
+		if(piece==1){
+			if(side==1&&r==3){
+				if (c>0&&inArr[3][c-1]==27){
+					out[2][c-1]=1;
+				} else if (c<7&&inArr[3][c+1]==27){
+					out[2][c+1]=1;
+				}
+			}
+			if(side==2&&r==4){
+				if (c>0&&inArr[4][c-1]==17){
+					out[5][c-1]=1;
+				} else if (c<7&&inArr[4][c+1]==17){
+					out[5][c+1]=1;
+				}
+			}
+		}
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
         		if(out[i][j]==1){
@@ -1188,6 +1221,29 @@ public class ChessGUI{
     	}else if(boardArr[i2][j2]==28){
     		boardArr[i2][j2]=24;
     	}
+    	
+    	int side=boardArr[i2][j2]/10;
+    	for(int a=0; a<8; a++){
+    		for(int b=0; b<8; b++){
+    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=side*10+1;
+    			}
+    		}
+    	}
+    	
+    	if(boardArr[i2][j2]==11&&i1==6&&i2==4){
+    		boardArr[i2][j2]=17;
+    	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
+    		boardArr[i2][j2]=17;
+    	}
+    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    		boardArr[i2+1][j2]=0;
+    	}
+    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    		boardArr[i2-1][j2]=0;
+    	}
+    	
+    	
     }
     private void guiPrintLine(String str){
     	System.out.println(str);
