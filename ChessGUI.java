@@ -11,7 +11,6 @@
 /*
  * TODO (External)
  *	CRITICAL - Game breaking issues, and bugs that cause crashes, memory leaks, unintended CPU hogging, etc.
- *		Implement castling and en passanant, so AI can be pitted against other chess engines
  *	
  *	HIGH PRIORITY - Missing features that the average user would expect, and non game-breaking bugs
  *		Add a text notification when the user makes a move that ends the game.
@@ -62,23 +61,26 @@ public class ChessGUI{
     int currentSide;
     int[] coords = new int[4];
 //    static final int reset[][] = {{24,22,23,25,29,23,22,24},{21,21,21,21,21,21,21,21},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{ 0, 0, 0, 0, 0, 0, 0, 0},{11,11,11,11,11,11,11,11},{18,12,13,15,19,13,12,18}};
-/*    static final int reset[][] = {{00,00,00,21,24,29,24,21},
-    							  {21,21,21,21,21,00,21,21},
+/*    
+    static final int reset[][] = {{00,00,00,00,29,00,00,00},
     							  {00,00,00,00,00,00,00,00},
     							  {00,00,00,00,00,00,00,00},
+    							  {27,11,27,11,27,11,27,11},
+    							  {21,17,21,17,21,17,21,17},
     							  {00,00,00,00,00,00,00,00},
     							  {00,00,00,00,00,00,00,00},
-    							  {11,11,11,11,11,00,11,11},
-    							  {14,00,00,00,19,00,00,18}};
+    							  {00,00,00,00,19,00,00,00}};
 */
-    static final int reset[][] = {{28,22,23,25,29,23,22,28},
+    
+ 	static final int reset[][] = {{28,22,23,25,29,23,22,28},
     							  {21,21,21,21,21,21,21,21},
     							  {00,00,00,00,00,00,00,00},
     							  {00,00,00,00,00,00,00,00},
     							  {00,00,00,00,00,00,00,00},
     							  {00,00,00,00,00,00,00,00},
     							  {11,11,11,11,11,11,11,11},
-    							  {18,12,13,15,19,13,12,18}};							  
+    							  {18,12,13,15,19,13,12,18}};
+
     public static void main(String[] args) {
         ChessGUI gui=new ChessGUI(false,true);
     }
@@ -781,18 +783,20 @@ public class ChessGUI{
 			}
 		}
 		//EN PASSANT
-		if(piece==1){
+		if(piece==1||piece==7){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
-				} else if (c<7&&inArr[3][c+1]==27){
+				}
+				if (c<7&&inArr[3][c+1]==27){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
 				if (c>0&&inArr[4][c-1]==17){
 					out[5][c-1]=1;
-				} else if (c<7&&inArr[4][c+1]==17){
+				}
+				if (c<7&&inArr[4][c+1]==17){
 					out[5][c+1]=1;
 				}
 			}
@@ -1125,18 +1129,20 @@ public class ChessGUI{
 			}
 		}
 		//EN PASSANT
-		if(piece==1){
+		if(piece==1||piece==7){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
-				} else if (c<7&&inArr[3][c+1]==27){
+				}
+				if (c<7&&inArr[3][c+1]==27){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
 				if (c>0&&inArr[4][c-1]==17){
 					out[5][c-1]=1;
-				} else if (c<7&&inArr[4][c+1]==17){
+				}
+				if (c<7&&inArr[4][c+1]==17){
 					out[5][c+1]=1;
 				}
 			}
@@ -1225,8 +1231,8 @@ public class ChessGUI{
     	int side=boardArr[i2][j2]/10;
     	for(int a=0; a<8; a++){
     		for(int b=0; b<8; b++){
-    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
-    				boardArr[a][b]=side*10+1;
+    			if(boardArr[a][b]/10==(side%2+1)&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=(side%2+1)*10+1;
     			}
     		}
     	}
@@ -1239,7 +1245,7 @@ public class ChessGUI{
     	if(boardArr[i2][j2]==11&&j1-j2!=0){
     		boardArr[i2+1][j2]=0;
     	}
-    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    	if(boardArr[i2][j2]==21&&j1-j2!=0){
     		boardArr[i2-1][j2]=0;
     	}
     	

@@ -432,14 +432,16 @@ public class ChessAI {
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
-				} else if (c<7&&inArr[3][c+1]==27){
+				}
+				if (c<7&&inArr[3][c+1]==27){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
 				if (c>0&&inArr[4][c-1]==17){
 					out[5][c-1]=1;
-				} else if (c<7&&inArr[4][c+1]==17){
+				}
+				if (c<7&&inArr[4][c+1]==17){
 					out[5][c+1]=1;
 				}
 			}
@@ -776,14 +778,16 @@ public class ChessAI {
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
-				} else if (c<7&&inArr[3][c+1]==27){
+				}
+				if (c<7&&inArr[3][c+1]==27){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
 				if (c>0&&inArr[4][c-1]==17){
 					out[5][c-1]=1;
-				} else if (c<7&&inArr[4][c+1]==17){
+				}
+				if (c<7&&inArr[4][c+1]==17){
 					out[5][c+1]=1;
 				}
 			}
@@ -850,7 +854,7 @@ public class ChessAI {
     	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
     		boardArr[moveArr[2]+1][moveArr[3]]=0;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
+    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0){
     		boardArr[moveArr[2]-1][moveArr[3]]=0;
     	}
     }
@@ -903,7 +907,7 @@ public class ChessAI {
     	if(boardArr[i2][j2]==11&&j1-j2!=0){
     		boardArr[i2+1][j2]=0;
     	}
-    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    	if(boardArr[i2][j2]==21&&j1-j2!=0){
     		boardArr[i2-1][j2]=0;
     	}
     }
