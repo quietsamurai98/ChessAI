@@ -785,18 +785,18 @@ public class ChessGUI{
 		//EN PASSANT
 		if(piece==1||piece==7){
 			if(side==1&&r==3){
-				if (c>0&&inArr[3][c-1]==27){
+				if (c>0&&inArr[3][c-1]==27&&out[2][c-1]==0){
 					out[2][c-1]=1;
 				}
-				if (c<7&&inArr[3][c+1]==27){
+				if (c<7&&inArr[3][c+1]==27&&out[2][c+1]==0){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
-				if (c>0&&inArr[4][c-1]==17){
+				if (c>0&&inArr[4][c-1]==17&&out[5][c-1]==0){
 					out[5][c-1]=1;
 				}
-				if (c<7&&inArr[4][c+1]==17){
+				if (c<7&&inArr[4][c+1]==17&&out[5][c+1]==0){
 					out[5][c+1]=1;
 				}
 			}

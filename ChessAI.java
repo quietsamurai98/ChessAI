@@ -166,7 +166,33 @@ public class ChessAI {
     			}
     		}
     	}
-    	return multiplyArrayElements(inBoard, captureBoard, "")[kingR][kingC]!=0;
+    	try{
+    		return multiplyArrayElements(inBoard, captureBoard, "")[kingR][kingC]!=0;
+    	} catch (java.lang.ArrayIndexOutOfBoundsException e){
+    		//e.printStackTrace();
+    		for(int r=0; r<8; r++){
+	    		for(int c=0; c<8; c++){
+	    			if(inBoard[r][c]==0){
+	    				System.out.print("0");
+	    			}
+	    			System.out.print(inBoard[r][c]+",");
+	    		}
+	    		System.out.println();
+	    	}
+	    	System.out.println();
+	    	for(int r=0; r<8; r++){
+	    		for(int c=0; c<8; c++){
+	    			if(PARAMETER_ARRAY[r][c]==0){
+	    				System.out.print("0");
+	    			}
+	    			System.out.print(PARAMETER_ARRAY[r][c]+",");
+	    		}
+	    		System.out.println();
+	    	}
+	    	int fail = inBoard[-1][-1];
+	    	return true;
+    	}
+    	
     	
     }
     private int[][] legalMoves(int r, int c, int[][] tempArr){
@@ -840,8 +866,8 @@ public class ChessAI {
     	int side=boardArr[moveArr[2]][moveArr[3]]/10;
     	for(int a=0; a<8; a++){
     		for(int b=0; b<8; b++){
-    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
-    				boardArr[a][b]=side*10+1;
+    			if(boardArr[a][b]/10==(side%2+1)&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=(side%2+1)*10+1;
     			}
     		}
     	}
@@ -893,8 +919,8 @@ public class ChessAI {
     	int side=boardArr[i2][j2]/10;
     	for(int a=0; a<8; a++){
     		for(int b=0; b<8; b++){
-    			if(boardArr[a][b]/10==side&&boardArr[a][b]%10==7){
-    				boardArr[a][b]=side*10+1;
+    			if(boardArr[a][b]/10==(side%2+1)&&boardArr[a][b]%10==7){
+    				boardArr[a][b]=(side%2+1)*10+1;
     			}
     		}
     	}
