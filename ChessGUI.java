@@ -34,6 +34,7 @@ import javax.imageio.ImageIO;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 public class ChessGUI{
+	static final int DEFAULT_DEPTH = 3;
 	int depth = 1;
 	JFrame chessInterface;
     JPanel boardPanel;
@@ -52,7 +53,7 @@ public class ChessGUI{
     static boolean WHITE_AI;
     static boolean BLACK_AI;
     static boolean AI_VS_AI;
-    int[][] board;
+    private int[][] board;
     boolean moving;
     int lastI;
     int lastJ;
@@ -141,6 +142,8 @@ public class ChessGUI{
         	checkmate=false;
         	currentSide=1;
         }
+    }
+    public ChessGUI(){
     }
     private void makeGUI(){
     	chessInterface = new JFrame();
@@ -294,7 +297,7 @@ public class ChessGUI{
         	guiPrintLine("Welcome! You are now watching a debug chess match between two AIs.");
         	guiPrintLine("This mode is experimental! Use the task manager to close the game.");
         }
-        setDepth(3);
+        setDepth(DEFAULT_DEPTH);
         updatePieceDisplay();
         textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
         newGameButtons.paintImmediately(new Rectangle(new Point(0,0),newGameButtons.getSize()));
@@ -1239,16 +1242,15 @@ public class ChessGUI{
     	
     	if(boardArr[i2][j2]==11&&i1==6&&i2==4){
     		boardArr[i2][j2]=17;
-    	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
+    	} else if(boardArr[i2][j2]==21&&i1==1&&i2==3){
     		boardArr[i2][j2]=17;
     	}
     	if(boardArr[i2][j2]==11&&j1-j2!=0){
     		boardArr[i2+1][j2]=0;
-    	}
-    	if(boardArr[i2][j2]==21&&j1-j2!=0){
+    	} else if(boardArr[i2][j2]==21&&j1-j2!=0){
     		boardArr[i2-1][j2]=0;
     	}
-    	
+    	//printBoard(boardArr);
     	
     }
     private void guiPrintLine(String str){
@@ -1256,5 +1258,21 @@ public class ChessGUI{
     	textOutput.append(str+"\n");
     	textOutput.setCaretPosition(textOutput.getDocument().getLength());
     	textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
+    }
+    private void printBoard(int[][] PARAMETER_ARRAY){
+    	for(int r=0; r<8; r++){
+    		for(int c=0; c<8; c++){
+    			if(PARAMETER_ARRAY[r][c]<10){
+    				System.out.print("0");
+    			}
+    			System.out.print(PARAMETER_ARRAY[r][c]+",");
+    		}
+    		System.out.println();
+    	}
+    	System.out.println();
+    }
+    public void wtf(){
+    	System.out.println("/nACTUAL GAME BOARD:");
+    	printBoard(board);
     }
 }

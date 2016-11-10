@@ -7,8 +7,9 @@
  */
 
 import java.util.*;
-public class ChessAI {
-
+public class ChessAI{
+	static final boolean ENABLE_EN_PASSANT=false;
+	static final boolean ENABLE_CASTLING=false;
     public ChessAI() {
     }
     public int[] aiMiniMax(int[][] PARAMETER_ARRAY, int side, int searchDepth){
@@ -27,7 +28,7 @@ public class ChessAI {
         			int[][] legalMoveBoard=legalMoves(i,j,arr,"");
         			for(int a=0; a<arr.length; a++){
         				for(int b=0; b<arr[0].length; b++){
-        					if(legalMoveBoard[a][b]==1){
+        					if(legalMoveBoard[a][b]>0){
         						int[] moveItem = {i,j,a,b};
         						moves.add(moveItem);
         						int[][] recurArr = copyArr(arr);
@@ -62,7 +63,7 @@ public class ChessAI {
 				}
 			}
 			if (moves.size()==0){
-				if(kingChecked(arr, side)){
+				if(kingChecked(arr, side)==1){
 					int[] outArr = {-1,-1,-1,-1,Integer.MIN_VALUE};
 					return outArr;
 				} else {
@@ -84,7 +85,7 @@ public class ChessAI {
 				}
 			}
 			if (moves.size()==0){
-				if(kingChecked(arr, side)){
+				if(kingChecked(arr, side)==1){
 					int[] outArr = {-1,-1,-1,-1,Integer.MAX_VALUE};
 					return outArr;
 				} else {
@@ -150,7 +151,7 @@ public class ChessAI {
         }
         return (int)(fitness*100);
     }
-    private boolean kingChecked(int[][] PARAMETER_ARRAY, int side){
+    private int kingChecked(int[][] PARAMETER_ARRAY, int side){
     	int[][] inBoard=copyArr(PARAMETER_ARRAY);
     	int[][] captureBoard = new int[8][8];
     	int otherSide = side%2+1;
@@ -167,32 +168,26 @@ public class ChessAI {
     		}
     	}
     	try{
-    		return multiplyArrayElements(inBoard, captureBoard, "")[kingR][kingC]!=0;
+    		if(multiplyArrayElements(captureBoard, inBoard, "")[kingR][kingC]!=0){
+    			return 1;
+    		} else {
+    			return 0;
+    		}
     	} catch (java.lang.ArrayIndexOutOfBoundsException e){
     		//e.printStackTrace();
-    		for(int r=0; r<8; r++){
-	    		for(int c=0; c<8; c++){
-	    			if(inBoard[r][c]==0){
-	    				System.out.print("0");
-	    			}
-	    			System.out.print(inBoard[r][c]+",");
-	    		}
-	    		System.out.println();
-	    	}
+    		if(side==1){
+    			System.out.println("SIDE WAS WHITE");
+    		} else {
+    			System.out.println("SIDE WAS BLACK");
+    		}
+    		System.out.println();
+    		printBoard(inBoard);
 	    	System.out.println();
-	    	for(int r=0; r<8; r++){
-	    		for(int c=0; c<8; c++){
-	    			if(PARAMETER_ARRAY[r][c]==0){
-	    				System.out.print("0");
-	    			}
-	    			System.out.print(PARAMETER_ARRAY[r][c]+",");
-	    		}
-	    		System.out.println();
-	    	}
-	    	int fail = inBoard[-1][-1];
-	    	return true;
+	    	printBoard(PARAMETER_ARRAY);
+	    	System.out.println();
+	    	printBoard(captureBoard);
+	    	return -1;
     	}
-    	
     	
     }
     private int[][] legalMoves(int r, int c, int[][] tempArr){
@@ -454,7 +449,7 @@ public class ChessAI {
 			}
 		}
 		//EN PASSANT
-		if(piece==1){
+		if(ENABLE_EN_PASSANT&&piece==1){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
@@ -732,75 +727,79 @@ public class ChessAI {
 				j--;
 			}
 		}
-		//WHITE CASTLE KINGSIDE
-		if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,1)){
-				makeMove(7,4,7,5,tempArrMove);
-				if (!kingChecked(tempArrMove,1)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(7,4,7,6,tempArrMove2);
-					if (!kingChecked(tempArrMove2,1)){
-						out[7][6]=2;
+		
+		if(ENABLE_CASTLING){
+			//WHITE CASTLE KINGSIDE
+			if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
+				int[][] tempArrMove = copyArr(inArr);
+				if (kingChecked(tempArrMove,1)==0){
+					makeMove(7,4,7,5,tempArrMove);
+					if (kingChecked(tempArrMove,1)==0){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(7,4,7,6,tempArrMove2);
+						if (kingChecked(tempArrMove2,1)==0){
+							out[7][6]=1;
+						}
 					}
 				}
 			}
-		}
-		
-		//BLACK CASTLE KINGSIDE
-		if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,2)){
-				makeMove(0,4,0,5,tempArrMove);
-				if (!kingChecked(tempArrMove,2)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(0,4,0,6,tempArrMove2);
-					if (!kingChecked(tempArrMove2,2)){
-						out[0][6]=3;
+			
+			//BLACK CASTLE KINGSIDE
+			if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
+				int[][] tempArrMove = copyArr(inArr);
+				if (kingChecked(tempArrMove,2)==0){
+					makeMove(0,4,0,5,tempArrMove);
+					if (kingChecked(tempArrMove,2)==0){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(0,4,0,6,tempArrMove2);
+						if (kingChecked(tempArrMove,2)==0){
+							out[0][6]=1;
+						}
 					}
 				}
 			}
-		}
-		
-		//WHITE CASTLE QUEENSIDE
-		if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,1)){
-				makeMove(7,4,7,3,tempArrMove);
-				if (!kingChecked(tempArrMove,1)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(7,4,7,2,tempArrMove2);
-					if (!kingChecked(tempArrMove2,1)){
-						int[][] tempArrMove3 = copyArr(inArr);
-						makeMove(7,4,7,1,tempArrMove2);
-						if (!kingChecked(tempArrMove2,1)){
-							out[7][2]=4;
+			
+			//WHITE CASTLE QUEENSIDE
+			if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
+				int[][] tempArrMove = copyArr(inArr);
+				if (kingChecked(tempArrMove,1)==0){
+					makeMove(7,4,7,3,tempArrMove);
+					if (kingChecked(tempArrMove,1)==0){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(7,4,7,2,tempArrMove2);
+						if (kingChecked(tempArrMove,1)==0){
+							int[][] tempArrMove3 = copyArr(inArr);
+							makeMove(7,4,7,1,tempArrMove2);
+							if (kingChecked(tempArrMove,1)==0){
+								out[7][2]=1;
+							}
+						}
+					}
+				}
+			}
+			
+			//BLACK CASTLE QUEENSIDE
+			if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
+				int[][] tempArrMove = copyArr(inArr);
+				if (kingChecked(tempArrMove,2)==0){
+					makeMove(0,4,0,3,tempArrMove);
+					if (kingChecked(tempArrMove,2)==0){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(0,4,0,2,tempArrMove2);
+						if (kingChecked(tempArrMove,2)==0){
+							int[][] tempArrMove3 = copyArr(inArr);
+							makeMove(0,4,0,1,tempArrMove2);
+							if (kingChecked(tempArrMove,2)==0){
+								out[0][2]=1;
+							}
 						}
 					}
 				}
 			}
 		}
 		
-		//BLACK CASTLE QUEENSIDE
-		if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,2)){
-				makeMove(0,4,0,3,tempArrMove);
-				if (!kingChecked(tempArrMove,2)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(0,4,0,2,tempArrMove2);
-					if (!kingChecked(tempArrMove2,2)){
-						int[][] tempArrMove3 = copyArr(inArr);
-						makeMove(0,4,0,1,tempArrMove2);
-						if (!kingChecked(tempArrMove2,2)){
-							out[0][2]=5;
-						}
-					}
-				}
-			}
-		}
 		//EN PASSANT
-		if(piece==1){
+		if(ENABLE_EN_PASSANT&&piece==1){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27){
 					out[2][c-1]=1;
@@ -823,7 +822,7 @@ public class ChessAI {
         		if(out[i][j]==1){
         			int[][] tempArrMove = copyArr(inArr);
         			makeMove(r,c,i,j,tempArrMove);
-        			if (kingChecked(tempArrMove,(inArr[r][c]/10))){
+        			if (kingChecked(tempArrMove,(inArr[r][c]/10))==1){
         				out[i][j]=0;
         			}
         		}
@@ -877,12 +876,16 @@ public class ChessAI {
     	} else if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[0]==1&&moveArr[2]==5){
     		boardArr[moveArr[2]][moveArr[3]]=17;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]!=moveArr[3]){
     		boardArr[moveArr[2]+1][moveArr[3]]=0;
-    	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0){
+    		//System.out.println("EN PASSANT 1");
+    		
+    	} else if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]!=moveArr[3]){
     		boardArr[moveArr[2]-1][moveArr[3]]=0;
+    		//System.out.println("EN PASSANT 2");
+    	} else {
     	}
+    	
     }
     private void makeMove(int i1 ,int j1 ,int i2 ,int j2 , int[][] boardArr){
     	boardArr[i2][j2] = boardArr[i1][j1];
@@ -930,11 +933,16 @@ public class ChessAI {
     	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
     		boardArr[i2][j2]=17;
     	}
-    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    	if(boardArr[i2][j2]==11&&j1!=j2){
     		boardArr[i2+1][j2]=0;
-    	}
-    	if(boardArr[i2][j2]==21&&j1-j2!=0){
+    		//System.out.println();
+    		//System.out.println("EN PASSANT 3");
+    	} else if(boardArr[i2][j2]==21&&j1!=j2){
     		boardArr[i2-1][j2]=0;
+    		//System.out.println();
+    		//System.out.println("EN PASSANT 4");
+    		//printBoard(boardArr);
+    	} else {
     	}
     }
     private int[][] multiplyArrayElements(int[][] foo, int[][] bar, String bat){
@@ -963,5 +971,16 @@ public class ChessAI {
     		}
     	}
     	return kingCount!=2;
+    }
+    private void printBoard(int[][] PARAMETER_ARRAY){
+    	for(int r=0; r<8; r++){
+    		for(int c=0; c<8; c++){
+    			if(PARAMETER_ARRAY[r][c]==0){
+    				System.out.print("0");
+    			}
+    			System.out.print(PARAMETER_ARRAY[r][c]+",");
+    		}
+    		System.out.println();
+    	}
     }
 }
