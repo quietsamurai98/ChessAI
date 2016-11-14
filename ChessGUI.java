@@ -60,8 +60,11 @@ public class ChessGUI{
     boolean gameOver;
     int currentSide;
     int[] coords = new int[4];
-
-
+	String[] pieceStrArr = {"","","N","B","R","Q","K","","R","K"};
+	String[] colStr = {"a","b","c","d","e","f","g","h"};
+	String turnStr="";
+	int turnCount=1;
+	boolean printTurn = true;
    
     static final int StandardBoard[][] = {
 			{28,22,23,25,29,23,22,28},
@@ -81,7 +84,7 @@ public class ChessGUI{
 			{00,00,00,11,00,00,00,00},
 			{00,00,00,00,00,00,00,00},
 			{11,11,11,00,00,11,11,11},
-			{18,12,13,00,19,13,12,18}
+			{18,12,13,15,19,13,12,18}
 		};
  	static final int foolsMate_blackToWin[][] = {
 			{28,22,23,25,29,23,22,28},
@@ -123,26 +126,7 @@ public class ChessGUI{
 				checkmate=true;
 				System.out.println("Stalemate! White cannot move!");
 			} else {
-				System.out.println("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				board[coords[2]][coords[3]] = board[coords[0]][coords[1]];
-				board[coords[0]][coords[1]]=0;
-				if(board[coords[2]][coords[3]]==11&&coords[2]==0){
-		    		System.out.println("Promotion!");
-		    		board[coords[2]][coords[3]]=15;
-		    	}else if(board[coords[2]][coords[3]]==21&&coords[2]==7){
-		    		System.out.println("Promotion!");
-		    		board[coords[2]][coords[3]]=25;
-		    	}
-		    	if(board[coords[2]][coords[3]]==19){
-		    		board[coords[2]][coords[3]]=16;
-		    	}else if(board[coords[2]][coords[3]]==29){
-		    		board[coords[2]][coords[3]]=26;
-		    	}
-		    	if(board[coords[2]][coords[3]]==18){
-		    		board[coords[2]][coords[3]]=14;
-		    	}else if(board[coords[2]][coords[3]]==28){
-		    		board[coords[2]][coords[3]]=24;
-		    	}
+				guiPrintLine(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 				updatePieceDisplay();
 			}
         } else {
@@ -354,8 +338,8 @@ public class ChessGUI{
 			    	} else {
 			    		moving = false;
 			    		if(legalMoves(lastI,lastJ,board,"")[i][j]!=0){
-			    			guiPrintLine("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
-			    			makeMove(lastI,lastJ,i,j,board);
+			    			//guiPrintLine("Piece on ("+ lastI + "," + lastJ + ") moves to (" + i+","+j + ")");
+			    			printMove(makeMove(lastI,lastJ,i,j,board));
 						    highlightMoves(new int[8][8]);
 				    		updatePieceDisplay();
 				    		currentSide=currentSide%2+1;
@@ -375,8 +359,8 @@ public class ChessGUI{
 									guiPrintLine("Stalemate!");
 									checkmate=true;
 								} else if(coords[3]>=0){
-									guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					    			makeMove(coords[0],coords[1],coords[2],coords[3],board);
+									//guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+					    			printMove(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 								}
 					    		updatePieceDisplay();
 					    		currentSide=currentSide%2+1;
@@ -404,8 +388,8 @@ public class ChessGUI{
 				guiPrintLine("Stalemate!");
 				checkmate=true;
 			} else if(coords[3]>=0){
-				guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				makeMove(coords[0],coords[1],coords[2],coords[3],board);
+				//guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+				printMove(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 			}
 			updatePieceDisplay();
 			currentSide=currentSide%2+1;
@@ -425,8 +409,8 @@ public class ChessGUI{
 					guiPrintLine("Stalemate!");
 					checkmate=true;
 				} else if(coords[3]>=0){
-					guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					makeMove(coords[0],coords[1],coords[2],coords[3],board);
+					//guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+					printMove(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 				}
 				updatePieceDisplay();
 				currentSide=currentSide%2+1;
@@ -452,8 +436,8 @@ public class ChessGUI{
 				checkmate=true;
 				guiPrintLine("Stalemate! White cannot move!");
 			} else {
-				guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-				makeMove(coords[0],coords[1],coords[2],coords[3],board);
+				//guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+				printMove(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 				updatePieceDisplay();
 			}
 			if(!checkmate){
@@ -468,8 +452,8 @@ public class ChessGUI{
 					checkmate=true;
 					guiPrintLine("Stalemate! Black cannot move!");
 				} else {
-					guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
-					makeMove(coords[0],coords[1],coords[2],coords[3],board);
+					//guiPrintLine("Piece on ("+ coords[0] + "," + coords[1] + ") moves to (" + coords[2]+","+coords[3] + ")");
+					printMove(makeMove(coords[0],coords[1],coords[2],coords[3],board));
 					updatePieceDisplay();
 				}
 			}
@@ -1209,31 +1193,49 @@ public class ChessGUI{
     	}
     	return foo;
     }
-    private void makeMove(int i1 ,int j1 ,int i2 ,int j2 , int[][] boardArr){
+    private String makeMove(int i1 ,int j1 ,int i2 ,int j2 , int[][] boardArr){
+    	boolean captureBool = boardArr[i2][j2]!=0;
+    	String pieceStr = pieceStrArr[boardArr[i1][j1]%10];
+//    	if (captureBool&&boardArr[i1][j1]%10==1){
+//    		pieceStr = colStr[j1];
+//    	}
+    	String squareStr = colStr[j2]+(8-i2);
+    	String moveStr = pieceStr+colStr[j1];
+    	if (captureBool){
+    		moveStr+="x";
+    	}
+    	moveStr+=squareStr;
+    	
     	boardArr[i2][j2] = boardArr[i1][j1];
     	boardArr[i1][j1] = 0;
     	if(boardArr[i2][j2]==11&&i2==0){
     		boardArr[i2][j2]=15;
+    		moveStr+="=Q";
     	}else if(boardArr[i2][j2]==21&&i2==7){
     		boardArr[i2][j2]=25;
+    		moveStr+="=Q";
     	}
     	if(boardArr[i2][j2]==19){
     		boardArr[i2][j2]=16;
     		if(j2==6){
     			boardArr[7][5]=14;
     			boardArr[7][7]=0;
+    			moveStr="O-O";
     		} else if(j2==2){
     			boardArr[7][3]=14;
     			boardArr[7][0]=0;
+    			moveStr="O-O-O";
     		}
     	}else if(boardArr[i2][j2]==29){
     		boardArr[i2][j2]=26;
     		if(j2==6){
     			boardArr[0][5]=24;
     			boardArr[0][7]=0;
+    			moveStr="O-O";
     		} else if(j2==2){
     			boardArr[0][3]=24;
     			boardArr[0][0]=0;
+    			moveStr="O-O-O";
     		}
     	}
     	if(boardArr[i2][j2]==18){
@@ -1258,11 +1260,13 @@ public class ChessGUI{
     	}
     	if(boardArr[i2][j2]==11&&j1-j2!=0){
     		boardArr[i2+1][j2]=0;
+    		//moveStr+="e.p.";
     	}
     	if(boardArr[i2][j2]==21&&j1-j2!=0){
     		boardArr[i2-1][j2]=0;
+    		//moveStr+="e.p.";
     	}
-    	
+    	return moveStr;
     	
     }
     private void guiPrintLine(String str){
@@ -1270,5 +1274,14 @@ public class ChessGUI{
     	textOutput.append(str+"\n");
     	textOutput.setCaretPosition(textOutput.getDocument().getLength());
     	textScroll.paintImmediately(new Rectangle(new Point(0,0),textScroll.getSize()));
+    }
+    private void printMove(String str){
+    	printTurn=!printTurn;
+    	turnStr+=str+" ";
+    	if(printTurn){
+    		guiPrintLine(turnCount+"."+turnStr);
+    		turnCount++;
+    		turnStr="";
+    	}
     }
 }

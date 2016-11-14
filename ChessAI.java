@@ -456,18 +456,18 @@ public class ChessAI {
 		//EN PASSANT
 		if(piece==1){
 			if(side==1&&r==3){
-				if (c>0&&inArr[3][c-1]==27){
+				if (c>0&&inArr[3][c-1]==27&&out[2][c-1]==0){
 					out[2][c-1]=1;
 				}
-				if (c<7&&inArr[3][c+1]==27){
+				if (c<7&&inArr[3][c+1]==27&&out[2][c+1]==0){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
-				if (c>0&&inArr[4][c-1]==17){
+				if (c>0&&inArr[4][c-1]==17&&out[5][c-1]==0){
 					out[5][c-1]=1;
 				}
-				if (c<7&&inArr[4][c+1]==17){
+				if (c<7&&inArr[4][c+1]==17&&out[5][c+1]==0){
 					out[5][c+1]=1;
 				}
 			}
@@ -802,18 +802,18 @@ public class ChessAI {
 		//EN PASSANT
 		if(piece==1){
 			if(side==1&&r==3){
-				if (c>0&&inArr[3][c-1]==27){
+				if (c>0&&inArr[3][c-1]==27&&out[2][c-1]==0){
 					out[2][c-1]=1;
 				}
-				if (c<7&&inArr[3][c+1]==27){
+				if (c<7&&inArr[3][c+1]==27&&out[2][c+1]==0){
 					out[2][c+1]=1;
 				}
 			}
 			if(side==2&&r==4){
-				if (c>0&&inArr[4][c-1]==17){
+				if (c>0&&inArr[4][c-1]==17&&out[5][c-1]==0){
 					out[5][c-1]=1;
 				}
-				if (c<7&&inArr[4][c+1]==17){
+				if (c<7&&inArr[4][c+1]==17&&out[5][c+1]==0){
 					out[5][c+1]=1;
 				}
 			}
@@ -877,10 +877,10 @@ public class ChessAI {
     	} else if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[0]==1&&moveArr[2]==5){
     		boardArr[moveArr[2]][moveArr[3]]=17;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0){
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]+1][moveArr[3]]%10==1){
     		boardArr[moveArr[2]+1][moveArr[3]]=0;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0){
+    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]-1][moveArr[3]]%10==1){
     		boardArr[moveArr[2]-1][moveArr[3]]=0;
     	}
     }
@@ -930,10 +930,10 @@ public class ChessAI {
     	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
     		boardArr[i2][j2]=17;
     	}
-    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    	if(boardArr[i2][j2]==11&&j1-j2!=0&&boardArr[i2+1][j2]%10==1){
     		boardArr[i2+1][j2]=0;
     	}
-    	if(boardArr[i2][j2]==21&&j1-j2!=0){
+    	if(boardArr[i2][j2]==21&&j1-j2!=0&&boardArr[i2-1][j2]%10==1){
     		boardArr[i2-1][j2]=0;
     	}
     }
