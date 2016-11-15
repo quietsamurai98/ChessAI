@@ -8,6 +8,8 @@
 
 import java.util.*;
 public class ChessAI {
+	private boolean ENPASSANT_ENABLED = false;
+	private boolean CASTLING_ENABLED = false;
 
     public ChessAI() {
     }
@@ -454,7 +456,7 @@ public class ChessAI {
 			}
 		}
 		//EN PASSANT
-		if(piece==1){
+		if(ENPASSANT_ENABLED&&piece==1){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27&&out[2][c-1]==0){
 					out[2][c-1]=1;
@@ -732,75 +734,77 @@ public class ChessAI {
 				j--;
 			}
 		}
-		//WHITE CASTLE KINGSIDE
-		if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,1)){
-				makeMove(7,4,7,5,tempArrMove);
+		if(CASTLING_ENABLED){
+			//WHITE CASTLE KINGSIDE
+			if(inArr[r][c]==19&&inArr[7][5]==0&&inArr[7][6]==0&&inArr[7][7]==18){ 
+				int[][] tempArrMove = copyArr(inArr);
 				if (!kingChecked(tempArrMove,1)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(7,4,7,6,tempArrMove2);
-					if (!kingChecked(tempArrMove2,1)){
-						out[7][6]=2;
-					}
-				}
-			}
-		}
-		
-		//BLACK CASTLE KINGSIDE
-		if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,2)){
-				makeMove(0,4,0,5,tempArrMove);
-				if (!kingChecked(tempArrMove,2)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(0,4,0,6,tempArrMove2);
-					if (!kingChecked(tempArrMove2,2)){
-						out[0][6]=3;
-					}
-				}
-			}
-		}
-		
-		//WHITE CASTLE QUEENSIDE
-		if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,1)){
-				makeMove(7,4,7,3,tempArrMove);
-				if (!kingChecked(tempArrMove,1)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(7,4,7,2,tempArrMove2);
-					if (!kingChecked(tempArrMove2,1)){
-						int[][] tempArrMove3 = copyArr(inArr);
-						makeMove(7,4,7,1,tempArrMove2);
+					makeMove(7,4,7,5,tempArrMove);
+					if (!kingChecked(tempArrMove,1)){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(7,4,7,6,tempArrMove2);
 						if (!kingChecked(tempArrMove2,1)){
-							out[7][2]=4;
+							out[7][6]=2;
 						}
 					}
 				}
 			}
-		}
-		
-		//BLACK CASTLE QUEENSIDE
-		if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
-			int[][] tempArrMove = copyArr(inArr);
-			if (!kingChecked(tempArrMove,2)){
-				makeMove(0,4,0,3,tempArrMove);
+			
+			//BLACK CASTLE KINGSIDE
+			if(inArr[r][c]==29&&inArr[0][5]==0&&inArr[0][6]==0&&inArr[0][7]==28){
+				int[][] tempArrMove = copyArr(inArr);
 				if (!kingChecked(tempArrMove,2)){
-					int[][] tempArrMove2 = copyArr(inArr);
-					makeMove(0,4,0,2,tempArrMove2);
-					if (!kingChecked(tempArrMove2,2)){
-						int[][] tempArrMove3 = copyArr(inArr);
-						makeMove(0,4,0,1,tempArrMove2);
+					makeMove(0,4,0,5,tempArrMove);
+					if (!kingChecked(tempArrMove,2)){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(0,4,0,6,tempArrMove2);
 						if (!kingChecked(tempArrMove2,2)){
-							out[0][2]=5;
+							out[0][6]=3;
 						}
 					}
 				}
 			}
-		}
+			
+			//WHITE CASTLE QUEENSIDE
+			if(inArr[r][c]==19&&inArr[7][3]==0&&inArr[7][2]==0&&inArr[7][1]==0&&inArr[7][0]==18){
+				int[][] tempArrMove = copyArr(inArr);
+				if (!kingChecked(tempArrMove,1)){
+					makeMove(7,4,7,3,tempArrMove);
+					if (!kingChecked(tempArrMove,1)){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(7,4,7,2,tempArrMove2);
+						if (!kingChecked(tempArrMove2,1)){
+							int[][] tempArrMove3 = copyArr(inArr);
+							makeMove(7,4,7,1,tempArrMove2);
+							if (!kingChecked(tempArrMove2,1)){
+								out[7][2]=4;
+							}
+						}
+					}
+				}
+			}
+			
+			//BLACK CASTLE QUEENSIDE
+			if(inArr[r][c]==29&&inArr[0][3]==0&&inArr[0][2]==0&&inArr[0][1]==0&&inArr[0][0]==28){
+				int[][] tempArrMove = copyArr(inArr);
+				if (!kingChecked(tempArrMove,2)){
+					makeMove(0,4,0,3,tempArrMove);
+					if (!kingChecked(tempArrMove,2)){
+						int[][] tempArrMove2 = copyArr(inArr);
+						makeMove(0,4,0,2,tempArrMove2);
+						if (!kingChecked(tempArrMove2,2)){
+							int[][] tempArrMove3 = copyArr(inArr);
+							makeMove(0,4,0,1,tempArrMove2);
+							if (!kingChecked(tempArrMove2,2)){
+								out[0][2]=5;
+							}
+						}
+					}
+				}
+			}
+    	}
 		//EN PASSANT
-		if(piece==1){
+		if(ENPASSANT_ENABLED&&piece==1){
 			if(side==1&&r==3){
 				if (c>0&&inArr[3][c-1]==27&&out[2][c-1]==0){
 					out[2][c-1]=1;
@@ -877,10 +881,10 @@ public class ChessAI {
     	} else if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[0]==1&&moveArr[2]==5){
     		boardArr[moveArr[2]][moveArr[3]]=17;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]+1][moveArr[3]]%10==1){
+    	if(boardArr[moveArr[2]][moveArr[3]]==11&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]+1][moveArr[3]]%10==7){
     		boardArr[moveArr[2]+1][moveArr[3]]=0;
     	}
-    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]-1][moveArr[3]]%10==1){
+    	if(boardArr[moveArr[2]][moveArr[3]]==21&&moveArr[1]-moveArr[3]!=0&&boardArr[moveArr[2]-1][moveArr[3]]%10==7){
     		boardArr[moveArr[2]-1][moveArr[3]]=0;
     	}
     }

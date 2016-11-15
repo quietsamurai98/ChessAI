@@ -1258,11 +1258,11 @@ public class ChessGUI{
     	} else if(boardArr[i2][j2]==21&&i1==1&&i2==5){
     		boardArr[i2][j2]=17;
     	}
-    	if(boardArr[i2][j2]==11&&j1-j2!=0){
+    	if(boardArr[i2][j2]==11&&j1-j2!=0&&boardArr[i2+1][j2]%10==7){
     		boardArr[i2+1][j2]=0;
     		//moveStr+="e.p.";
     	}
-    	if(boardArr[i2][j2]==21&&j1-j2!=0){
+    	if(boardArr[i2][j2]==21&&j1-j2!=0&&boardArr[i2+1][j2]%10==7){
     		boardArr[i2-1][j2]=0;
     		//moveStr+="e.p.";
     	}
