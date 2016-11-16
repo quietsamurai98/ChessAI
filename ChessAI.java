@@ -10,13 +10,53 @@ import java.util.*;
 public class ChessAI {
 	private boolean ENPASSANT_ENABLED = false;
 	private boolean CASTLING_ENABLED = false;
+	private int[][] pawnArr={{0,  0,  0,  0,  0,  0,  0,  0},
+					    	{50, 50, 50, 50, 50, 50, 50, 50},
+					    	{10, 10, 20, 30, 30, 20, 10, 10},
+					    	{ 5,  5, 10, 25, 25, 10,  5,  5},
+					    	{ 0,  0,  0, 20, 20,  0,  0,  0},
+					    	{ 5, -5,-10,  0,  0,-10, -5,  5},
+					    	{ 5, 10, 10,-20,-20, 10, 10,  5},
+					    	{ 0,  0,  0,  0,  0,  0,  0,  0}};
+	private int[][] kngtArr={{-50,-40,-30,-30,-30,-30,-40,-50},
+							 {-40,-20,  0,  0,  0,  0,-20,-40},
+							 {-30,  0, 10, 15, 15, 10,  0,-30},
+							 {-30,  5, 15, 20, 20, 15,  5,-30},
+							 {-30,  0, 15, 20, 20, 15,  0,-30},
+							 {-30,  5, 10, 15, 15, 10,  5,-30},
+							 {-40,-20,  0,  5,  5,  0,-20,-40},
+							 {-50,-40,-30,-30,-30,-30,-40,-50}};
+	private int[][] bshpArr={{-20,-10,-10,-10,-10,-10,-10,-20},
+							 {-10,  0,  0,  0,  0,  0,  0,-10},
+							 {-10,  0,  5, 10, 10,  5,  0,-10},
+							 {-10,  5,  5, 10, 10,  5,  5,-10},
+							 {-10,  0, 10, 10, 10, 10,  0,-10},
+							 {-10, 10, 10, 10, 10, 10, 10,-10},
+						 	 {-10,  5,  0,  0,  0,  0,  5,-10},
+							 {-20,-10,-10,-10,-10,-10,-10,-20}};
+	private int[][] rookArr={{0,  0,  0,  0,  0,  0,  0,  0},
+							{ 5, 10, 10, 10, 10, 10, 10,  5},
+							{-5,  0,  0,  0,  0,  0,  0, -5},
+							{-5,  0,  0,  0,  0,  0,  0, -5},
+							{-5,  0,  0,  0,  0,  0,  0, -5},
+							{-5,  0,  0,  0,  0,  0,  0, -5},
+							{-5,  0,  0,  0,  0,  0,  0, -5},
+							{ 0,  0,  0,  5,  5,  0,  0,  0}};
+	private int[][] qwnArr={{-20,-10,-10, -5, -5,-10,-10,-20},
+							{-10,  0,  0,  0,  0,  0,  0,-10},
+							{-10,  0,  5,  5,  5,  5,  0,-10},
+							{ -5,  0,  5,  5,  5,  5,  0, -5},
+							{  0,  0,  5,  5,  5,  5,  0, -5},
+							{-10,  5,  5,  5,  5,  5,  0,-10},
+							{-10,  0,  5,  0,  0,  0,  0,-10},
+							{-20,-10,-10, -5, -5,-10,-10,-20}};
 
     public ChessAI() {
     }
-    public int[] aiMiniMax(int[][] PARAMETER_ARRAY, int side, int searchDepth){
+    public int[] aiMiniMax(int[][] PARAMETER_ARRAY, int trueSide, int side, int searchDepth){
     	int[][] arr=copyArr(PARAMETER_ARRAY);
     	if (testGameOver(arr)||searchDepth==0){
-    		int[] out={-1,-1,-1,-1,getScore(arr)};
+    		int[] out={-1,-1,-1,-1,getScore(arr,side)};
     		return out;
     	}
     	ArrayList<Integer> scores = new ArrayList<Integer>();
@@ -34,11 +74,7 @@ public class ChessAI {
         						moves.add(moveItem);
         						int[][] recurArr = copyArr(arr);
         						makeMove(moveItem,recurArr);
-        						if(side==1){
-						    		scores.add(aiMiniMax(recurArr,2,searchDepth-1)[4]);
-						    	} else if(side==2){
-						    		scores.add(aiMiniMax(recurArr,1,searchDepth-1)[4]);
-						    	}
+						    	scores.add(aiMiniMax(recurArr,trueSide,side%2+1,searchDepth-1)[4]);
 			        		}
         				}
         			}
@@ -46,7 +82,7 @@ public class ChessAI {
         	}
         }
         for(int[] possibleMove:moves){
-        	scores.add(getMoveScore(possibleMove, arr));
+        	scores.add(getMoveScore(possibleMove, arr, side));
         }
         
         ArrayList<Integer> order = new ArrayList<Integer>();
@@ -54,7 +90,7 @@ public class ChessAI {
     		order.add(i);
     	}
     	Collections.shuffle(order);
-    	if(side==1){
+    	if(side==trueSide){
 			int index = 0;
 			int maxScore=Integer.MIN_VALUE;
 			for(int i:order){
@@ -110,47 +146,73 @@ public class ChessAI {
         }
     	return arrOut;
     }
-    private int getMoveScore(int[] move, int[][] PARAMETER_ARRAY){
+    private int getMoveScore(int[] move, int[][] PARAMETER_ARRAY, int side){
     	int[][] arr = copyArr(PARAMETER_ARRAY);
     	makeMove(move, arr);
-    	return getScore(arr);
+    	return getScore(arr,side);
     }
-    private int getScore(int[][] PARAMETER_ARRAY){
+    private int getScore(int[][] PARAMETER_ARRAY, int side){
     	int [][] arr = copyArr(PARAMETER_ARRAY);
-        double fitness=0;
-        for(int[] foo: arr){
-        	for(int bar:foo){
-        		int piece = bar%10;
-        		if(bar/10==1){
-        			if (piece==1||piece==7)
-        				fitness+=1;
-        			if (piece==2)
-        				fitness+=3.5;
-        			if (piece==3)
-        				fitness+=3.5;
-        			if (piece==4||piece==8)
-        				fitness+=5.25;
-        			if (piece==5)
-        				fitness+=10;
-        			if (piece==6||piece==9)
+        int fitness=0;
+        for(int r=0;r<7;r++){
+        	for(int c=0;c<7;c++){
+        		int piece = arr[r][c]%10;
+        		if(arr[r][c]/10==side){
+        			if (piece==1||piece==7){
         				fitness+=1000;
+        				fitness+=pawnArr[r][c];
+        			} else
+        			if (piece==2){
+        				fitness+=3500;
+        				fitness+=kngtArr[r][c];
+        			} else
+        			if (piece==3){
+        				fitness+=3500;
+        				fitness+=bshpArr[r][c];
+        			} else
+        			if (piece==4||piece==8){
+        				fitness+=5250;
+        				fitness+=rookArr[r][c];
+        			} else
+        			if (piece==5){
+        				fitness+=10000;
+        				fitness+=qwnArr[r][c];
+        			}
+        			if (piece==6||piece==9){
+        				fitness+=10000000;
+        			}
+        				
         		}else{
-        			if (piece==1||piece==7)
-        				fitness-=1;
-        			if (piece==2)
-        				fitness-=3.5;
-        			if (piece==3)
-        				fitness-=3.5;
-        			if (piece==4||piece==8)
-        				fitness-=5.25;
-        			if (piece==5)
-        				fitness-=10;
-        			if (piece==6||piece==9)
+        			if (piece==1||piece==7){
         				fitness-=1000;
+        				fitness-=pawnArr[7-r][c];
+        			} else
+        			if (piece==2){
+        				fitness-=3500;
+        				fitness-=kngtArr[7-r][c];
+        			} else
+        			if (piece==3){
+        				fitness-=3500;
+        				fitness-=bshpArr[7-r][c];
+        			} else
+        			if (piece==4||piece==8){
+        				fitness-=5250;
+        				fitness-=rookArr[7-r][c];
+        			} else
+        			if (piece==5){
+        				fitness-=10000;
+        				fitness-=qwnArr[7-r][c];
+        			}
+        			if (piece==6||piece==9){
+        				fitness-=10000000;
+        			}
         		}
         	}
         }
-        return (int)(fitness*100);
+//        if (side==2){
+//        	fitness*=1;
+//        }
+        return fitness;
     }
     private boolean kingChecked(int[][] PARAMETER_ARRAY, int side){
     	int[][] inBoard=copyArr(PARAMETER_ARRAY);

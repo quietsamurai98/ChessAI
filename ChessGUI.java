@@ -118,7 +118,7 @@ public class ChessGUI{
         	lastI=0;
         	lastJ=0;
         	checkmate=false;
-        	int[] coords = playerAI.aiMiniMax(board,1,depth);
+        	int[] coords = playerAI.aiMiniMax(board,1,1,depth);
 			if(coords[3]==-1){
 				System.out.println("Black wins!");
 				checkmate=true;
@@ -142,7 +142,7 @@ public class ChessGUI{
     }
     private void makeGUI(){
     	chessInterface = new JFrame();
-        chessInterface.setTitle("Chess Interface");
+        chessInterface.setTitle("Chess Interface (BETA)");
         
         chessInterface.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chessInterface.setFocusable(true);
@@ -345,7 +345,7 @@ public class ChessGUI{
 				    		currentSide=currentSide%2+1;
 				    		
 				    		if(WHITE_AI||BLACK_AI){
-					    		int[] coords = playerAI.aiMiniMax(board,currentSide,depth);
+					    		int[] coords = playerAI.aiMiniMax(board,currentSide,currentSide,depth);
 				    			
 				    			if(coords[3]==-1){
 				    				if(WHITE_AI){
@@ -375,7 +375,7 @@ public class ChessGUI{
     private void aiMoveClick(){
     	if(!checkmate){
 			highlightMoves(new int[8][8]);
-			coords = playerAI.aiMiniMax(board,currentSide,depth);
+			coords = playerAI.aiMiniMax(board,currentSide,currentSide,depth);
 			if(coords[3]==-1){
 				if(WHITE_AI){
 					guiPrintLine("White wins!");
@@ -395,7 +395,7 @@ public class ChessGUI{
 			currentSide=currentSide%2+1;
 		
 			if(WHITE_AI||BLACK_AI){
-				coords = playerAI.aiMiniMax(board,currentSide,depth);
+				coords = playerAI.aiMiniMax(board,currentSide,currentSide,depth);
 				
 				if(coords[3]==-1){
 					if(WHITE_AI){
@@ -426,7 +426,7 @@ public class ChessGUI{
         lastJ=0;
         checkmate=false;
         while(!checkmate){
-			int[] coords=playerAI.aiMiniMax(board,1,depth);
+			int[] coords=playerAI.aiMiniMax(board,1,1,depth);
 			
 			
 			if(coords[3]==-1){
@@ -442,7 +442,7 @@ public class ChessGUI{
 			}
 			if(!checkmate){
 				
-				coords=playerAI.aiMiniMax(board,2,depth);
+				coords=playerAI.aiMiniMax(board,2,2,depth);
 				
 				
 				if(coords[3]==-1){
@@ -1244,7 +1244,7 @@ public class ChessGUI{
     		boardArr[i2][j2]=24;
     	}
     	
-    	int side=boardArr[i2][j2]/10;
+    	int side=(boardArr[i2][j2]/10)%2+1;
     	for(int a=0; a<8; a++){
     		for(int b=0; b<8; b++){
     			if(boardArr[a][b]/10==(side%2+1)&&boardArr[a][b]%10==7){
