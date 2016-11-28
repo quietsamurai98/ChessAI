@@ -48,7 +48,7 @@ public class ChessGUI{
     Color boardColorBlackHighlight = new Color(184,164,35);
     BufferedImage sprites;
     ImageIcon pieceSprites[][] = new ImageIcon[2][10];
-    ChessAI playerAI = new ChessAI();
+    //ChessAI playerAI = new ChessAI();
     static boolean WHITE_AI;
     static boolean BLACK_AI;
     static boolean AI_VS_AI;
@@ -118,7 +118,7 @@ public class ChessGUI{
         	lastI=0;
         	lastJ=0;
         	checkmate=false;
-        	int[] coords = playerAI.aiMiniMax(board,1,depth);
+        	int[] coords = ChessAI.aiMiniMax(board,1,depth);
 			if(coords[3]==-1){
 				System.out.println("Black wins!");
 				checkmate=true;
@@ -345,7 +345,7 @@ public class ChessGUI{
 				    		currentSide=currentSide%2+1;
 				    		
 				    		if(WHITE_AI||BLACK_AI){
-					    		int[] coords = playerAI.aiMiniMax(board,currentSide,depth);
+					    		int[] coords = ChessAI.aiMiniMax(board,currentSide,depth);
 				    			
 				    			if(coords[3]==-1){
 				    				if(WHITE_AI){
@@ -375,7 +375,7 @@ public class ChessGUI{
     private void aiMoveClick(){
     	if(!checkmate){
 			highlightMoves(new int[8][8]);
-			coords = playerAI.aiMiniMax(board,currentSide,depth);
+			coords = ChessAI.aiMiniMax(board,currentSide,depth);
 			if(coords[3]==-1){
 				if(WHITE_AI){
 					guiPrintLine("White wins!");
@@ -395,7 +395,7 @@ public class ChessGUI{
 			currentSide=currentSide%2+1;
 		
 			if(WHITE_AI||BLACK_AI){
-				coords = playerAI.aiMiniMax(board,currentSide,depth);
+				coords = ChessAI.aiMiniMax(board,currentSide,depth);
 				
 				if(coords[3]==-1){
 					if(WHITE_AI){
@@ -426,7 +426,7 @@ public class ChessGUI{
         lastJ=0;
         checkmate=false;
         while(!checkmate){
-			int[] coords=playerAI.aiMiniMax(board,1,depth);
+			int[] coords=ChessAI.aiMiniMax(board,1,depth);
 			
 			
 			if(coords[3]==-1){
@@ -442,7 +442,7 @@ public class ChessGUI{
 			}
 			if(!checkmate){
 				
-				coords=playerAI.aiMiniMax(board,2,depth);
+				coords=ChessAI.aiMiniMax(board,2,depth);
 				
 				
 				if(coords[3]==-1){
@@ -459,15 +459,15 @@ public class ChessGUI{
 			}
         }
     }
-    private int[][] copyArr(int[][] arrIn){
-    	int[][] arrOut= new int[arrIn.length][arrIn[0].length];
-    	for(int i=0; i<arrIn.length; i++){
-        	for (int j=0; j<arrIn[0].length; j++){
-        		arrOut[i][j]=arrIn[i][j];
-        	}
-        }
-    	return arrOut;
-    }
+//    private int[][] copyArr(int[][] arrIn){
+//    	int[][] arrOut= new int[arrIn.length][arrIn[0].length];
+//    	for(int i=0; i<arrIn.length; i++){
+//        	for (int j=0; j<arrIn[0].length; j++){
+//        		arrOut[i][j]=arrIn[i][j];
+//        	}
+//        }
+//    	return arrOut;
+//    }
     private void highlightMoves(int[][] legals){
     	for(int i=0; i<8; i++){
         	for(int j=0; j<8; j++){
@@ -1177,22 +1177,22 @@ public class ChessGUI{
     	return multiplyArrayElements(inBoard, captureBoard, "")[kingR][kingC]!=0;
     	
     }
-    private int[][] multiplyArrayElements(int[][] foo, int[][] bar, String bat){
-    	for(int i=0; i<8; i++){
-        	for(int j=0; j<8; j++){
-        		foo[i][j]=foo[i][j]*bar[i][j];
-        	}
-    	}
-    	return foo;
-    }
-    private int[][] addArrayElements(int[][] foo, int[][] bar, String bat){
-    	for(int i=0; i<8; i++){
-        	for(int j=0; j<8; j++){
-        		foo[i][j]=foo[i][j]+bar[i][j];
-        	}
-    	}
-    	return foo;
-    }
+//    private int[][] multiplyArrayElements(int[][] foo, int[][] bar, String bat){
+//    	for(int i=0; i<8; i++){
+//        	for(int j=0; j<8; j++){
+//        		foo[i][j]=foo[i][j]*bar[i][j];
+//        	}
+//    	}
+//    	return foo;
+//    }
+//    private int[][] addArrayElements(int[][] foo, int[][] bar, String bat){
+//    	for(int i=0; i<8; i++){
+//        	for(int j=0; j<8; j++){
+//        		foo[i][j]=foo[i][j]+bar[i][j];
+//        	}
+//    	}
+//    	return foo;
+//    }
     private String makeMove(int i1 ,int j1 ,int i2 ,int j2 , int[][] boardArr){
     	boolean captureBool = boardArr[i2][j2]!=0;
     	String pieceStr = pieceStrArr[boardArr[i1][j1]%10];
